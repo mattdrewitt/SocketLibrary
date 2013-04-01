@@ -4,17 +4,27 @@
 #include <iostream>
 #include <string>
 
+//testing
+#include <sstream>
+
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
 
 class UDPServer {
+	// Server vars
 	WSADATA wsaData;
 	SOCKET hSocket;
 	sockaddr_in service;
 
+	// Server address config
 	unsigned short const port;
 	std::string const address;
+
+	// Server recv/send vars
+	sockaddr	clientAddress;
+	socklen_t	cbClientAddress;
+
 public:
 	UDPServer(std::string const a, unsigned short const p) : port(p), address(a) { 
 		// initialize WSA
@@ -40,34 +50,50 @@ public:
 			closesocket( hSocket );
 			//return EXIT_FAILURE;
 		}
+		std::cout << "UDP Server" << std::endl;
 	}
 	~UDPServer() {
 		shutdown();
 	}
 
-	void accept() {
+	void Accept() {
+		cbClientAddress = sizeof( clientAddress );
 		// message loop
 		for(;;) {
-			sockaddr	clientAddress;
-			socklen_t	cbClientAddress = sizeof( clientAddress );
-			int const MAXLINE = 256;
-			char msg[MAXLINE];
-
-			int n = recvfrom( hSocket, msg, MAXLINE, 0, &clientAddress, &cbClientAddress );
-			msg[min(n,255)] = 0;
-
-			std::cout << "Recv: " << msg << std::endl;
-			if( !strcmp(msg, "!quit") ) {
-				std::string const terminateMsg = "server exit";
-				sendto( hSocket, terminateMsg.c_str(), terminateMsg.size(), 0, &clientAddress, cbClientAddress );
+			/*int const MAXLINE = 256;
+			char msg[MAXLINE];*/
+			std::string msg;
+			Recv( msg );
+			
+			if( msg == "!quit" ) {
+				Send("server exit");
 				break;
 			}
 
 			msg[0] = toupper( msg[0] );
-			sendto( hSocket, msg, n, 0, &clientAddress, cbClientAddress );
+			std::cout << "Sending: " << msg << std::endl;
+			Send( msg );
 
 		}
 	}
+
+	void Recv(std::string& m) {
+		int const MAXLINE = 256;
+		char msg[MAXLINE];
+
+		int n = recvfrom( hSocket, msg, MAXLINE, 0, &clientAddress, &cbClientAddress );
+		msg[min(n,255)] = 0;
+		std::cout << "Recv: " << msg << std::endl;
+
+		//set the passed param to the received value
+
+		m = msg;
+	}
+
+	void Send(std::string const m) {
+		sendto( hSocket, m.c_str(), m.size(), 0, &clientAddress, cbClientAddress );
+	}
+
 
 	void shutdown() {
 		closesocket( hSocket );
