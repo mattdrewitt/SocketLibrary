@@ -1,8 +1,10 @@
-#include "UDPServer.hpp"
-#include "UDPClient.hpp"
-#include "TCPServer.hpp"
+#include <UDPServer.hpp>
+#include <UDPClient.hpp>
+#include <TCPServer.hpp>
+
 using namespace std;
 
+#pragma comment (lib, "socketLibrary-mt-sgd.lib")
 int main() {
 	/*UDPServer udpserver("127.0.0.1", 49154);
 	udpserver.Accept();
