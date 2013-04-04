@@ -292,12 +292,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TCPClient.hpp" />
-    <ClInclude Include="TCPServer.hpp" />
-    <ClInclude Include="UDPClient.hpp" />
-    <ClInclude Include="UDPServer.hpp" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="TCPClient.cpp" />
+    <ClCompile Include="TCPServer.cpp" />
+    <ClCompile Include="UDPClient.cpp" />
     <ClCompile Include="UDPServer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

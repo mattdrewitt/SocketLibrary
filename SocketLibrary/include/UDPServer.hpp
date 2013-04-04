@@ -57,7 +57,6 @@ public:
 	}
 
 	void Accept() {
-		cbClientAddress = sizeof( clientAddress );
 		// message loop
 		for(;;) {
 			/*int const MAXLINE = 256;
@@ -78,6 +77,7 @@ public:
 	}
 
 	void Recv(std::string& m) {
+		cbClientAddress = sizeof( clientAddress );
 		int const MAXLINE = 256;
 		char msg[MAXLINE];
 
@@ -91,6 +91,7 @@ public:
 	}
 
 	void Send(std::string const m) {
+		cbClientAddress = sizeof( clientAddress );
 		sendto( hSocket, m.c_str(), m.size(), 0, &clientAddress, cbClientAddress );
 	}
 

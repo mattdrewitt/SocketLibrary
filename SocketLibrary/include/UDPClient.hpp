@@ -32,6 +32,8 @@ public:
 		service.sin_family = AF_INET;
 		service.sin_port = htons( port );
 		service.sin_addr.s_addr = inet_addr( address.c_str() );
+
+		std::cout << "UDP Client" << std::endl;
 	}
 	~UDPClient() {
 		shutdown();
@@ -66,6 +68,7 @@ public:
 		int const MAXLINE = 256;
 		char recvLine[MAXLINE + 1];
 		int i = recvfrom( hSocket, recvLine, MAXLINE, 0, NULL, NULL );
+		recvLine[min(i,255)] = 0;
 		r = recvLine;
 
 		return i;

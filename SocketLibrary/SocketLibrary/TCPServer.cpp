@@ -1,4 +1,4 @@
-#include <UDPServer.hpp>
+#include <TCPServer.hpp>
 
 #if defined (_DEBUG) &&  !defined(_DLL)
 #pragma comment (lib, "socketLibrary-mt-sgd.lib")
