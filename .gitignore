@@ -26,6 +26,7 @@ Thumbs.db
 *_p.c
 *.ncb
 *.suo
+*.sdf
 *.tlb
 *.tlh
 *.bak
