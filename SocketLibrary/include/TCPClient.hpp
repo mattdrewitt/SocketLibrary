@@ -10,7 +10,6 @@
 class TCPClient {
 	WSADATA wsaData;
 	SOCKET hSocket;
-	SOCKET hAccepted;
 	sockaddr_in service;
 
 	unsigned short const port;
@@ -21,6 +20,7 @@ public:
 		int iResult = WSAStartup( MAKEWORD(2,2), &wsaData);
 		if( iResult != 0 ) {
 			std::cerr << "WSAStartup failed." << std::endl;
+			throw "Failed to Initialize WSA";
 			//return EXIT_FAILURE;
 		}
 
@@ -28,6 +28,7 @@ public:
 		hSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 		if( hSocket == INVALID_SOCKET ) {
 			std::cerr << "Error: socket(): " << WSAGetLastError() << std::endl;
+			throw "Failed to Create Socket";
 			//return EXIT_FAILURE;
 		}
 
@@ -37,41 +38,38 @@ public:
 		service.sin_addr.s_addr = inet_addr( address.c_str() );
 		//int exitCode = EXIT_SUCCESS;
 
-		// bind the port to the IP.  Not exclusive, but says we want to listen to info on that port
-		if( bind( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
-			std::cerr << "Failed to bind" << std::endl;
-			int res = WSAGetLastError();
-			std::cout << "Result: " << res << std::endl;
-			//exitCode = EXIT_FAILURE;
-			//goto close;
-		}
-
+		std::cout << "TCP Client" << std::endl;
 	}
 	~TCPClient() {
 		shutdown();
 	}
 	void Connect() {
-		
+		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
+			std::cerr << "Failed to bind" << std::endl;
+			throw "Failed to Connect";
+			//exitCode = EXIT_FAILURE;
+			//goto close;
+		}
+		std::cout << "Client connected" << std::endl;
 	}
-
+	
 	void Recv() {
-		int const MAX = 256;
+		unsigned int const MAX = 256;
 		char buf[MAX];
-		int bytesRecv = recv( hAccepted, buf, MAX, 0 );
+		int bytesRecv = recv( hSocket, buf, MAX, 0 );
 		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
 		std::cout << "Msg: " << buf << std::endl;
 	}
 	void Send(std::string msg) {
-		int const MAX = 256;
+		unsigned int const MAX = 256;
 		char buf[MAX];
 		strcpy( buf, msg.c_str() );
-		int bytesSent = send( hAccepted, buf, strlen( buf ) + 1, 0 );
+		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
 		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
 	}
 
 	void shutdown() {
 		closesocket( hSocket );
-		closesocket( hAccepted );
 		WSACleanup();
 	}
 };

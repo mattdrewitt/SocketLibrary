@@ -21,6 +21,7 @@ public:
 		int iResult = WSAStartup( MAKEWORD(2,2), &wsaData);
 		if( iResult != 0 ) {
 			std::cerr << "WSAStartup failed." << std::endl;
+			throw "Failed to Initialize WSA";
 			//return EXIT_FAILURE;
 		}
 
@@ -28,6 +29,7 @@ public:
 		hSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 		if( hSocket == INVALID_SOCKET ) {
 			std::cerr << "Error: socket(): " << WSAGetLastError() << std::endl;
+			throw "Failed to Create Socket";
 			//return EXIT_FAILURE;
 		}
 
@@ -42,10 +44,12 @@ public:
 			std::cerr << "Failed to bind" << std::endl;
 			int res = WSAGetLastError();
 			std::cout << "Result: " << res << std::endl;
+			throw "Failed to Bind Port";
 			//exitCode = EXIT_FAILURE;
 			//goto close;
 		}
 
+		std::cout << "TCP Server" << std::endl;
 	}
 	~TCPServer() {
 		shutdown();
@@ -53,6 +57,7 @@ public:
 	void Listen() {
 		if( listen( hSocket, 1 ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to listen" << std::endl;
+			throw "Failed to Listen";
 			//exitCode = EXIT_FAILURE;
 			//goto close;
 		}
@@ -66,7 +71,7 @@ public:
 	}
 
 	void Recv() {
-		int const MAX = 256;
+		unsigned int const MAX = 256;
 		char buf[MAX];
 		int bytesRecv = recv( hAccepted, buf, MAX, 0 );
 		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
