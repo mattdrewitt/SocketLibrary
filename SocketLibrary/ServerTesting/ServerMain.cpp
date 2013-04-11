@@ -9,7 +9,7 @@ int main() {
 
 	//cout << "Shutting down.." << endl;
 
-	TCPServer tcpserver("127.0.0.1", 49156);
+	TCPServer tcpserver(AF_INET, "127.0.0.1", 49156);
 	tcpserver.Listen();
 	tcpserver.Accept();
 	tcpserver.Recv();

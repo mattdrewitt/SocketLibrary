@@ -13,10 +13,22 @@ class TCPServer {
 	SOCKET hAccepted;
 	sockaddr_in service;
 
+	unsigned const int family;
 	unsigned short const port;
 	std::string const address;
 public:
-	TCPServer(std::string const a, unsigned short const p) : port(p), address(a) { 
+	TCPServer(std::string const a, unsigned short const p) : family(AF_INET), address(a) , port(p) {
+		init();
+	}
+
+	TCPServer(int const f, std::string const a, unsigned short const p) : family(f), address(a) , port(p) {
+		init();
+	}
+	~TCPServer() {
+		shutdown();
+	}
+private:
+	void init() { 
 		// initialize WSA
 		int iResult = WSAStartup( MAKEWORD(2,2), &wsaData);
 		if( iResult != 0 ) {
@@ -26,7 +38,7 @@ public:
 		}
 
 		// create the socket
-		hSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+		hSocket = socket( family, SOCK_STREAM, IPPROTO_TCP );
 		if( hSocket == INVALID_SOCKET ) {
 			std::cerr << "Error: socket(): " << WSAGetLastError() << std::endl;
 			throw "Failed to Create Socket";
@@ -34,7 +46,7 @@ public:
 		}
 
 		// Create the server address
-		service.sin_family = AF_INET;
+		service.sin_family = family;
 		service.sin_port = htons( port );
 		service.sin_addr.s_addr = inet_addr( address.c_str() );
 		//int exitCode = EXIT_SUCCESS;
@@ -51,9 +63,7 @@ public:
 
 		std::cout << "TCP Server" << std::endl;
 	}
-	~TCPServer() {
-		shutdown();
-	}
+public:
 	void Listen() {
 		if( listen( hSocket, 1 ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to listen" << std::endl;
