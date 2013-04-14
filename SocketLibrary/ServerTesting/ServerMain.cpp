@@ -9,11 +9,11 @@ int main() {
 
 	//cout << "Shutting down.." << endl;
 
-	TCPServer tcpserver(AF_INET, "127.0.0.1", 49156);
+	TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
 	tcpserver.Listen();
 	tcpserver.Accept();
-	tcpserver.Recv();
-	tcpserver.Send("Gotcha!");
+	//tcpserver.Recv();
+	//tcpserver.Send("Gotcha!");
 
-	cout << "Shutting down.." << endl;
+	//cout << "Shutting down.." << endl;
 }

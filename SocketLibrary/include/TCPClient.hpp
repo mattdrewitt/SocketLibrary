@@ -2,16 +2,17 @@
 #define GUARD_TCPClient_hpp_
 
 #include <iostream>
-
+#include <thread>
+#include <map>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
-
+#define DEFAULT_BUFFER 2048
 class TCPClient {
 	WSADATA wsaData;
 	SOCKET hSocket;
 	sockaddr_in service;
-
+	std::map<unsigned int, std::thread> clientThreads;
 	unsigned int const family;
 	unsigned short const port;
 	std::string const address;
@@ -53,27 +54,31 @@ private:
 		std::cout << "TCP Client" << std::endl;
 	}
 public:
-	void Connect() {
+
+	 void Connect() {
+		//when some client connects we want to make a new thread?
+		//how do we keep track of said thread.....
+		//we will have to kill all threads when the sever is closed
+		//but we will have to kill only 1 thread each time a client stops listening. 
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to bind" << std::endl;
 			throw "Failed to Connect";
 			//exitCode = EXIT_FAILURE;
 			//goto close;
 		}
-		std::cout << "Client connected" << std::endl;
 	}
 	
 	void Recv() {
 		unsigned int const MAX = 256;
-		char buf[MAX];
-		int bytesRecv = recv( hSocket, buf, MAX, 0 );
+		char buf[DEFAULT_BUFFER];
+		int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
 		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
 		std::cout << "Msg: " << buf << std::endl;
 	}
 	void Send(std::string msg) {
 		unsigned int const MAX = 256;
-		char buf[MAX];
-		strcpy( buf, msg.c_str() );
+		char buf[DEFAULT_BUFFER];
+		strcpy_s( buf, msg.c_str() );
 		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
 		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
 	}
