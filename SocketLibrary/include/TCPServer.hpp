@@ -8,6 +8,7 @@
 #include <WinSock2.h>
 #include <thread>
 #include <future>
+#include <vector>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
 
@@ -17,6 +18,7 @@
 #define DEFAULT_MESSAGE "broadcasting test"
 
 class TCPServer {
+private:
 	WSADATA wsaData;
 	SOCKET hListen;
 	SOCKET hClient;
@@ -30,9 +32,8 @@ class TCPServer {
 	int iPort; //= DEFAULT_PORT;
 	DWORD dwCount; //= DEFAULT_COUNT;
 	BOOL bSendOnly; //= FALSE;
-
+    static std::vector<SOCKET> clients;
 	DWORD dwThreadId;
-	std::map<unsigned int, SOCKET> clientSockets;
 	unsigned const int family;
 	unsigned short const port;
 	std::string const address;
@@ -48,44 +49,7 @@ public:
 		shutdown();
 	}
 private:
-	void init() { 
-		iPort = DEFAULT_PORT; //port on server to connect to 
-		bSendOnly = FALSE;       //send data only dont receive 
-		clientCount = 0;
-		// initialize WSA
-		int iResult = WSAStartup( MAKEWORD(2,2), &wsaData);
-		if( iResult != 0 ) {
-			std::cerr << "WSAStartup failed." << std::endl;
-			throw "Failed to Initialize WSA";
-			//return EXIT_FAILURE;
-		}
-
-		// create the socket
-		hListen = socket( family, SOCK_STREAM, IPPROTO_TCP );
-		if( hListen == INVALID_SOCKET ) {
-			std::cerr << "Error: socket(): " << WSAGetLastError() << std::endl;
-			throw "Failed to Create Socket";
-			//return EXIT_FAILURE;
-		}
-
-		// Create the server address
-		service.sin_family = family;
-		service.sin_port = htons( port );
-		service.sin_addr.s_addr = inet_addr( address.c_str() );
-		//int exitCode = EXIT_SUCCESS;
-
-		// bind the port to the IP.  Not exclusive, but says we want to listen to info on that port
-		if( bind( hListen, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
-			std::cerr << "Failed to bind" << std::endl;
-			int res = WSAGetLastError();
-			std::cout << "Result: " << res << std::endl;
-			throw "Failed to Bind Port";
-			//exitCode = EXIT_FAILURE;
-			//goto close;
-		}
-
-		std::cout << "TCP Server" << std::endl;
-	}
+	void init();
 public:
 	void Listen() {
 		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
@@ -95,7 +59,9 @@ public:
 	}
 
 	static DWORD WINAPI ClientThread(LPVOID lpParam){
+		//clients.push_back(clientCount++);
 		SOCKET sock=(SOCKET)lpParam;
+		//clients.push_back(sock);
 		char szBuff[DEFAULT_BUFFER];
 		int		ret,
 			    nLeft,
@@ -112,6 +78,8 @@ public:
 			}
 			std::cout << "bytes recv " << ret << std::endl;
 			std::cout << "recv: " << szBuff << std::endl;
+			//std::cout << "clientid: " << clientCount << std::endl;
+
 			szBuff[ret] = '\0';
 			//echo the data back. 
 			nLeft = ret; 
@@ -128,13 +96,6 @@ public:
 				nLeft -= ret;
 				idx += ret;
 			}
-
-		   
-			/*else
-			{
-				std::cout << "not sure whats going on...." << std::endl;
-				break;
-			}*/
 		}
 		return 0;
 	}
@@ -165,11 +126,9 @@ public:
 				std::cout << "CreateThread() failed...." << std::endl;
 				break;
 			}
-	
-			CloseHandle(hThread);
 			
 		}
-		closesocket(hListen);
+		//closesocket(hListen);
 	}
 
 	//void Recv() {
@@ -186,11 +145,14 @@ public:
 	//	//}
 	//}
 	//void Send(std::string msg) {
-	//	int const MAX = 256;
-	//	char buf[MAX];
-	//	strcpy_s( buf, msg.c_str() );
-	//	int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
-	//	std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
+	//	std::vector<SOCKET>::iterator it;
+	//	for(it = clients.begin(); it != clients.end(); ++it){
+	//		int const MAX = 256;
+	//		char buf[MAX];
+	//		strcpy_s( buf, msg.c_str() );
+	//		int bytesSent = send( (*it), buf, strlen( buf ) + 1, 0 );
+	//		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
+	//	}
 	//}
 
 	void closeCurrentConnection() {
@@ -198,6 +160,7 @@ public:
 	}
 
 	void shutdown() {
+		CloseHandle(hThread);
 		closesocket( hListen );
 		closesocket( hClient );
 		WSACleanup();

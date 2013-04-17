@@ -56,15 +56,9 @@ private:
 public:
 
 	 void Connect() {
-		//when some client connects we want to make a new thread?
-		//how do we keep track of said thread.....
-		//we will have to kill all threads when the sever is closed
-		//but we will have to kill only 1 thread each time a client stops listening. 
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to bind" << std::endl;
 			throw "Failed to Connect";
-			//exitCode = EXIT_FAILURE;
-			//goto close;
 		}
 	}
 	
