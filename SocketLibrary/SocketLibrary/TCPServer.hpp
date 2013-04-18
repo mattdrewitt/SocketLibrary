@@ -50,6 +50,7 @@ public:
 	}
 private:	
 	void init() {
+
 		iPort = DEFAULT_PORT; //port on server to connect to 
 		bSendOnly = FALSE;       //send data only dont receive 
 		clientCount = 0;
@@ -88,28 +89,6 @@ public:
 			std::cerr << "Failed to listen" << std::endl;
 			throw "Failed to Listen";
 		}
-
-		std::cout << "Waiting for a connection" << std::endl;
-		SOCKET testSocket = SOCKET_ERROR;
-
-		std::thread th(AcceptThread, hListen, clients);
-		th.join();			
-	}
-	
-	static DWORD WINAPI AcceptThread(SOCKET sockListen){
-		SOCKET sock;
-		while(1){
-		sockaddr_in _client;
-		int iAddrSize = sizeof(_client);
-			sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
-			if(sock == INVALID_SOCKET) {
-				std::cout << "accept() failed.." << std::endl;
-				return 0;
-			}
-			std::cout << "client is now connected";
-			//clientSocketList.push_back(sock);
-		}
-		return 0;	
 	}
 
 	static DWORD WINAPI ClientThread(LPVOID lpParam){
@@ -159,23 +138,23 @@ public:
 
 
 
-	// void Accept() {
-	//	
-	//	std::cout << "Waiting for a connection" << std::endl;
-	//	SOCKET testSocket = SOCKET_ERROR;
-	//	//in a continuous loop we wait for incoming clients. 
-	//	//once one is detected create a thread and padd the handle off to 
-	//	//it 
-	//	//while(1){
-	//		iAddrSize = sizeof(client);
-	//		testSocket = accept( hListen, (sockaddr *)&client, &iAddrSize );
-	//		if(testSocket == INVALID_SOCKET) {
-	//			std::cout << "accept() failed.." << std::endl;
-	//			return;
-	//		}
-	//		std::cout << "client is now connected";
-	//}
-	// 
+	 void Accept() {
+		
+		std::cout << "Waiting for a connection" << std::endl;
+		SOCKET testSocket = SOCKET_ERROR;
+		//in a continuous loop we wait for incoming clients. 
+		//once one is detected create a thread and padd the handle off to 
+		//it 
+		//while(1){
+			iAddrSize = sizeof(client);
+			testSocket = accept( hListen, (sockaddr *)&client, &iAddrSize );
+			if(testSocket == INVALID_SOCKET) {
+				std::cout << "accept() failed.." << std::endl;
+				return;
+			}
+			std::cout << "client is now connected";
+	}
+	 
 	 /*
 	 			hThread = CreateThread(NULL,0, ClientThread,
 				(LPVOID)hClient, 0, &dwThreadId);
@@ -203,13 +182,13 @@ public:
 	//	//	}
 	//	//}
 	//}
-	//void Send(std::string msg) {
-	//		int const MAX = 256;
-	//		char buf[MAX];
-	//		strcpy_s( buf, msg.c_str() );
-	//		int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
-	//		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
-	//}
+	void Send(std::string msg) {
+			int const MAX = 256;
+			char buf[MAX];
+			strcpy_s( buf, msg.c_str() );
+			int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
+			std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
+	}
 
 	void closeCurrentConnection() {
 

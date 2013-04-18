@@ -1,10 +1,13 @@
-
+//
 #include <string>
 #include <map>
-
-//ok so...should the objects go here or client side????
-//dealer, player 
-//numberdata --card, value, type
+#include <list>
+#include <TCPServer.hpp>
+#include <vector>
+//
+////ok so...should the objects go here or client side????
+////dealer, player 
+////numberdata --card, value, type
 
 //Simply a data class.... 
 class NumberData {
@@ -20,6 +23,7 @@ public:
 class Player {
 private:
 	double  playerBet;
+	bool    isDealer;
 	typedef NumberData Cards[3];  //each player never has more than 3 cards. 
 	//std::map<unsigned int, Cards> playerHands; //each player may have more than 1 hand if they "split" 
 public:
@@ -31,6 +35,17 @@ public:
 class Dealer {
 private:
 
+	std::list<Player> playerList;
+	void fillDecks(); //default to 3 decks....?
+	std::vector<NumberData>  cards;
+	std::vector<NumberData> discarded;
+	unsigned int * SendClientInitialCards(); 
+	//unsigned int ClientReady(std::string clientMsg);
 public:
-	Dealer() {}
+	Dealer() {
+	TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
+	tcpserver.Listen();
+	//tcpserver.Accept();  //want to pass an accept message? 
+	}
+
 };
