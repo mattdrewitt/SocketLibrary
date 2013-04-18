@@ -297,12 +297,6 @@
     <ClCompile Include="UDPClient.cpp" />
     <ClCompile Include="UDPServer.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="TCPClient.hpp" />
-    <ClInclude Include="TCPServer.hpp" />
-    <ClInclude Include="UDPClient.hpp" />
-    <ClInclude Include="UDPServer.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
