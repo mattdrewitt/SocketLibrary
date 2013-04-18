@@ -83,7 +83,8 @@ private:
 		std::cout << "TCP Server" << std::endl;
 	}
 public:
-	void Listen() {
+	void Listen(){
+		
 		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to listen" << std::endl;
 			throw "Failed to Listen";
@@ -92,7 +93,7 @@ public:
 		std::cout << "Waiting for a connection" << std::endl;
 		SOCKET testSocket = SOCKET_ERROR;
 
-		std::thread th(AcceptThread, hListen, clients);
+		std::thread th(AcceptThread, hListen);
 		th.join();			
 	}
 	
