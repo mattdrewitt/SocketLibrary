@@ -16,6 +16,10 @@ public:
 
 };
 
+bool checkForGarbage(std::string toCheck, std::string expected){
+
+
+}
 
 int main() {
 	ClientData client;
@@ -27,11 +31,40 @@ int main() {
 	client.clientId = atoi((tcpclient.Recv()).c_str()); 
 
 	//Recv again.....
-	std::string command = tcpclient.Recv();
+	for(;;){
+		char command = (tcpclient.Recv())[0];
 
+		//every time we recieve from the server we want to push ourselves into a switch to read the given commands 
+		if(command == 'q'){
+			break;
+		}
+		else {
+			switch (command)
+			{
+				case 'b':
+					   //send that we are betting... 
+					    cout << "Please bet now..... " << endl;
+						int bet;
+						cin >> bet;
+						tcpclient.Send("bet");
+						tcpclient.Send(std::to_string(bet));
+						
+					  break;
+				case 't':
+					  break;
+				case 'm':
+					  break;
+				case 'f':
+					  break;
+				case 's':
+					  break;
+			}
+		}
+	}
 	
 
 	cout << "sever send me something..." << endl;
 	system("pause");
+
 }
 

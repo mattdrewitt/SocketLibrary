@@ -4,29 +4,29 @@ std::map<unsigned int, SOCKET> TCPServer::clients;
 unsigned int TCPServer::clientsConnected = 0;
 
 DWORD WINAPI TCPServer::AcceptThread(SOCKET sockListen){
-		SOCKET sock;
-		char szBuff[DEFAULT_BUFFER];
-		while(1){
+	SOCKET sock;
+	char szBuff[DEFAULT_BUFFER];
+	while(1){
 		sockaddr_in _client;
 		int iAddrSize = sizeof(_client);
-			sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
-			if(sock == INVALID_SOCKET) {
-				std::cout << "accept() failed.." << std::endl;
-				return 0;
-			}
-			
-			clientsConnected++;
-			clients.insert(std::pair<unsigned int, SOCKET>(clientsConnected, sock));
-			std::cout << "client" << clientsConnected << " is now connected" << std::endl;
-			int const MAX = 256;
-			char buf[MAX];
-			std::string clientId = std::to_string(clientsConnected);
-			strcpy_s( buf, clientId.c_str() );
-			int bytesSent = send( sock, buf, strlen( buf ) + 1, 0 );
-			std::cout << "Server: Sent Id." << std::endl;
+		sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
+		if(sock == INVALID_SOCKET) {
+			std::cout << "accept() failed.." << std::endl;
+			return 0;
 		}
-		return 0;	
+
+		clientsConnected++;
+		clients.insert(std::pair<unsigned int, SOCKET>(clientsConnected, sock));
+		std::cout << "client" << clientsConnected << " is now connected" << std::endl;
+		int const MAX = 256;
+		char buf[MAX];
+		std::string clientId = std::to_string(clientsConnected);
+		strcpy_s( buf, clientId.c_str() );
+		int bytesSent = send( sock, buf, strlen( buf ) + 1, 0 );
+		std::cout << "Server: Sent Id." << std::endl;
 	}
+	return 0;	
+}
 
    
 void TCPServer::shutdown() {

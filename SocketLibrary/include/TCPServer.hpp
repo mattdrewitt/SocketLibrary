@@ -50,6 +50,10 @@ private:
 	std::string const address;
 	static unsigned int clientsConnected;
 public:
+	TCPServer() : family(AF_INET), address("172.0.0.1") , port(80){
+		init();
+	}
+
 	TCPServer(std::string const a, unsigned short const p) : family(AF_INET), address(a) , port(p) {
 		init();
 	}
@@ -60,6 +64,8 @@ public:
 	~TCPServer() {
 		shutdown();
 	}
+
+
 private:	
 	void init();
 public:
@@ -118,40 +124,6 @@ private:
 		}
 		return 0;
 	}
-
-
-
-	// void Accept() {
-	//	
-	//	std::cout << "Waiting for a connection" << std::endl;
-	//	SOCKET testSocket = SOCKET_ERROR;
-	//	//in a continuous loop we wait for incoming clients. 
-	//	//once one is detected create a thread and padd the handle off to 
-	//	//it 
-	//	//while(1){
-	//		iAddrSize = sizeof(client);
-	//		testSocket = accept( hListen, (sockaddr *)&client, &iAddrSize );
-	//		if(testSocket == INVALID_SOCKET) {
-	//			std::cout << "accept() failed.." << std::endl;
-	//			return;
-	//		}
-	//		std::cout << "client is now connected";
-	//}
-	// 
-	 /*
-	 			hThread = CreateThread(NULL,0, ClientThread,
-				(LPVOID)hClient, 0, &dwThreadId);
-
-		    std::cout << "Client connected" << std::endl;
-			if(hThread == NULL){
-				std::cout << "CreateThread() failed...." << std::endl;
-				break;
-			}
-					//}
-		//closesocket(hListen);
-	 */
-
-
 
 
 	void shutdown();
