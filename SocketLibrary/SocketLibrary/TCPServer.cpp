@@ -1,28 +1,53 @@
 #include <TCPServer.hpp>
-#include <iostream>
-#include <map>
-#include <thread>
-#include <iterator>
-#include <WinSock2.h>
-#include <thread>
-#include <future>
-//#include <vector>
-//#include <WS2tcpip.h>
 
-//std::vector<SOCKET> TCPServer::clients;
-//
-//void TCPServer::Listen() {
-//		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
-//			std::cerr << "Failed to listen" << std::endl;
-//			throw "Failed to Listen";
-//		}
-//
-//		std::cout << "Waiting for a connection" << std::endl;
-//		SOCKET testSocket = SOCKET_ERROR;
-//
-//		std::thread th(AcceptThread, hListen);
-//		th.join();			
-//	}
+std::map<unsigned int, SOCKET> TCPServer::clients;
+unsigned int TCPServer::clientsConnected = 0;
+
+DWORD WINAPI TCPServer::AcceptThread(SOCKET sockListen){
+		SOCKET sock;
+		char szBuff[DEFAULT_BUFFER];
+		while(1){
+		sockaddr_in _client;
+		int iAddrSize = sizeof(_client);
+			sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
+			if(sock == INVALID_SOCKET) {
+				std::cout << "accept() failed.." << std::endl;
+				return 0;
+			}
+			
+			clientsConnected++;
+			clients.insert(std::pair<unsigned int, SOCKET>(clientsConnected, sock));
+			std::cout << "client" << clientsConnected << " is now connected" << std::endl;
+			int const MAX = 256;
+			char buf[MAX];
+			std::string clientId = std::to_string(clientsConnected);
+			strcpy_s( buf, clientId.c_str() );
+			int bytesSent = send( sock, buf, strlen( buf ) + 1, 0 );
+			std::cout << "Server: Sent Id." << std::endl;
+		}
+		return 0;	
+	}
+
+   
+void TCPServer::shutdown() {
+		//CloseHandle(hThread);
+		closesocket( hListen );
+		closesocket( hClient );
+		WSACleanup();
+	}
+
+void TCPServer::Listen() {
+		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
+			std::cerr << "Failed to listen" << std::endl;
+			throw "Failed to Listen";
+		}
+
+		std::cout << "Waiting for a connection" << std::endl;
+		SOCKET testSocket = SOCKET_ERROR;
+
+		std::thread th(AcceptThread, hListen);
+		th.join();			
+	}
 
 void TCPServer::init() {
 	iPort = DEFAULT_PORT; //port on server to connect to 
@@ -57,3 +82,43 @@ void TCPServer::init() {
 
 	std::cout << "TCP Server" << std::endl;
 }
+
+
+
+	//void TCPServer::Recv() {
+	//	//std::map<unsigned int, SOCKET>::iterator it;
+	//	//for(it = clientSockets.begin(); it != clientSockets.end(); it++){
+	//		//if(it->first = clientId) 
+	//		//{
+	//	/*		char buf[DEFAULT_BUFFER];
+	//			int bytesRecv = recv( hClient, buf, MAX, 0 );
+	//			std::cout << "Received" << bytesRecv << " bytes" << std::endl;
+	//			std::cout << "Msg: " << buf << std::endl;*/
+	//			//break;
+	//	//	}
+	//	//}
+	//}
+
+	void TCPServer::Send(std::string msg) {
+		int const MAX = 256;
+		char buf[MAX];
+
+		if(msg.compare("all") == 0){
+			//we want to loop through all connected sockets
+			//and send them a welcome message? ...just test it for now. 
+			std::map<unsigned int, SOCKET>::iterator map_it;
+			for(map_it = clients.begin(); map_it != clients.end(); ++map_it){
+				msg = "YAYYYYY";
+				strcpy_s( buf, msg.c_str() );
+				int bytesSent = send( (*map_it).second, buf, strlen( buf ) + 1, 0 );
+				std::cout << "Sent: " << buf << " to all." << std::endl;
+			}
+		}
+	}
+
+
+//DWORD WINAPI TCPServer::SendThread(SOCKET sockListen, std::string msg)
+//{
+//
+//}
+
