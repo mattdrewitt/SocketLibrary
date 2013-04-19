@@ -6,18 +6,10 @@
 class Player {
 public:
 	int credit;
-	int bet;
-	std::vector<Hand> hands;
+	// A hand and its bet
+	std::vector<Hand, int> hands;
 
-	bool createBet( int b ) {
-		if( credit >=  b ) {
-			credit -= b;
-			bet += b;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	bool createBet( int h, int b );
+	void winBet( int h );
+	void lostBet( int h );
 };

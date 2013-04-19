@@ -21,6 +21,18 @@
     <ClCompile Include="Dealer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Card.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shoe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dealer.hpp">

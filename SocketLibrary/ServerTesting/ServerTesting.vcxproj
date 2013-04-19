@@ -286,8 +286,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Card.cpp" />
     <ClCompile Include="Dealer.cpp" />
+    <ClCompile Include="Hand.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="ServerMain.cpp" />
+    <ClCompile Include="Shoe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card.hpp" />

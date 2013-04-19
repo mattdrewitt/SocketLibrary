@@ -2,7 +2,6 @@
 #define GUARD_Card_hpp_
 
 #include <string>
-#include <list>
 
 class Card {
 public:
@@ -12,9 +11,7 @@ public:
 
 	Card( std::string s, std::string r, int v) : rank(r), suit(s), value(v) {}
 	
-	std::string name() {
-		return rank + " of " + suit;
-	}
+	std::string to_string();
 };
 
 #endif
