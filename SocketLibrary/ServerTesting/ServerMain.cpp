@@ -19,6 +19,7 @@ int main() {
 
 	TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
 	tcpserver.Listen();
+	tcpserver.Send("all");
 	//tcpserver.Accept();
 	//as soon as we accept we have a client who is ready for cards 
 	//dealer.SendUpClient. 

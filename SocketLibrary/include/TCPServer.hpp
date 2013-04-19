@@ -18,6 +18,7 @@
 #include <WinSock2.h>
 #include <thread>
 #include <future>
+#include <string>
 #include <vector>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
@@ -42,11 +43,12 @@ private:
 	int iPort; //= DEFAULT_PORT;
 	DWORD dwCount; //= DEFAULT_COUNT;
 	BOOL bSendOnly; //= FALSE;
-    static std::vector<SOCKET> clients;
+    static std::map<unsigned int, SOCKET> clients;
 	DWORD dwThreadId;
 	unsigned const int family;
 	unsigned short const port;
 	std::string const address;
+	static unsigned int clientsConnected;
 public:
 	TCPServer(std::string const a, unsigned short const p) : family(AF_INET), address(a) , port(p) {
 		init();
@@ -61,35 +63,13 @@ public:
 private:	
 	void init();
 public:
-	void Listen(){
-		
-		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
-			std::cerr << "Failed to listen" << std::endl;
-			throw "Failed to Listen";
-		}
+	void Listen();
+		void Send(std::string msg);
 
-		std::cout << "Waiting for a connection" << std::endl;
-		SOCKET testSocket = SOCKET_ERROR;
+private:
+	static DWORD WINAPI AcceptThread(SOCKET sockListen);
 
-		std::thread th(AcceptThread, hListen);
-		th.join();			
-	}
-	
-	static DWORD WINAPI AcceptThread(SOCKET sockListen){
-		SOCKET sock;
-		while(1){
-		sockaddr_in _client;
-		int iAddrSize = sizeof(_client);
-			sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
-			if(sock == INVALID_SOCKET) {
-				std::cout << "accept() failed.." << std::endl;
-				return 0;
-			}
-			std::cout << "client is now connected";
-			//clientSocketList.push_back(sock);
-		}
-		return 0;	
-	}
+	static DWORD WINAPI SendThread(SOCKET sockListen, std::string msg);
 
 	static DWORD WINAPI ClientThread(LPVOID lpParam){
 		//clients.push_back(clientCount++);
@@ -169,37 +149,9 @@ public:
 	 */
 
 
-	//void Recv() {
-	//	//std::map<unsigned int, SOCKET>::iterator it;
-	//	//for(it = clientSockets.begin(); it != clientSockets.end(); it++){
-	//		//if(it->first = clientId) 
-	//		//{
-	//	/*		char buf[DEFAULT_BUFFER];
-	//			int bytesRecv = recv( hClient, buf, MAX, 0 );
-	//			std::cout << "Received" << bytesRecv << " bytes" << std::endl;
-	//			std::cout << "Msg: " << buf << std::endl;*/
-	//			//break;
-	//	//	}
-	//	//}
-	//}
-	//void Send(std::string msg) {
-	//		int const MAX = 256;
-	//		char buf[MAX];
-	//		strcpy_s( buf, msg.c_str() );
-	//		int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
-	//		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
-	//}
 
-	void closeCurrentConnection() {
 
-	}
-
-	void shutdown() {
-		//CloseHandle(hThread);
-		closesocket( hListen );
-		closesocket( hClient );
-		WSACleanup();
-	}
+	void shutdown();
 };
 
 #endif
