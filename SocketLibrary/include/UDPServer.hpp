@@ -14,9 +14,6 @@
 #include <iostream>
 #include <string>
 
-//testing
-#include <sstream>
-
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
@@ -66,50 +63,11 @@ public:
 		shutdown();
 	}
 
-	void Accept() {
-		// message loop
-		for(;;) {
-			/*int const MAXLINE = 256;
-			char msg[MAXLINE];*/
-			std::string msg;
-			Recv( msg );
-			
-			if( msg == "!quit" ) {
-				Send("server exit");
-				break;
-			}
+	void Accept();
+	void Recv(std::string& m);
+	void Send(std::string const m);
+	void shutdown();
 
-			msg[0] = toupper( msg[0] );
-			std::cout << "Sending: " << msg << std::endl;
-			Send( msg );
-
-		}
-	}
-
-	void Recv(std::string& m) {
-		cbClientAddress = sizeof( clientAddress );
-		int const MAXLINE = 256;
-		char msg[MAXLINE];
-
-		int n = recvfrom( hSocket, msg, MAXLINE, 0, &clientAddress, &cbClientAddress );
-		msg[min(n,255)] = 0;
-		std::cout << "Recv: " << msg << std::endl;
-
-		//set the passed param to the received value
-
-		m = msg;
-	}
-
-	void Send(std::string const m) {
-		cbClientAddress = sizeof( clientAddress );
-		sendto( hSocket, m.c_str(), m.size(), 0, &clientAddress, cbClientAddress );
-	}
-
-
-	void shutdown() {
-		closesocket( hSocket );
-		WSACleanup();
-	}
 };
 
 #endif

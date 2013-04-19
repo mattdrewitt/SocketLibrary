@@ -44,7 +44,7 @@ private:
 	void init();
 public:
 
-	 void Connect();
+	void Connect();
 
 	void Recv();
 
