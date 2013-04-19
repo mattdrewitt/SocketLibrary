@@ -63,8 +63,11 @@ public:
 private:	
 	void init();
 public:
+	void ListenAndAccept();
+	void Send(std::string msg);
+	void Accept();
 	void Listen();
-		void Send(std::string msg);
+	void Recv();
 
 private:
 	static DWORD WINAPI AcceptThread(SOCKET sockListen);

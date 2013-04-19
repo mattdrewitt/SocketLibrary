@@ -29,7 +29,9 @@ void TCPClient::init() {
 	}
 
 
-	 void TCPClient::Connect() {
+
+
+void TCPClient::ConnectAndRecvId() {
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to bind" << std::endl;
 			throw "Failed to Connect";
@@ -42,13 +44,23 @@ void TCPClient::init() {
 		}
 	}
 	
-	void TCPClient::Recv() {
+  void TCPClient::Connect() {
+		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
+			std::cerr << "Failed to bind" << std::endl;
+			throw "Failed to Connect";
+		}
+	}
+
+
+  std::string TCPClient::Recv() {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
 		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
 		std::cout << "Msg: " << buf << std::endl;
+		return buf;
 	}
+
 	void TCPClient::Send(std::string msg) {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
@@ -56,6 +68,7 @@ void TCPClient::init() {
 		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
 		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
 	}
+
 
 	void TCPClient::shutdown() {
 		closesocket( hSocket );

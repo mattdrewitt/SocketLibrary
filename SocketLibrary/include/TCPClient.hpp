@@ -14,6 +14,7 @@
 #include <iostream>
 #include <thread>
 #include <map>
+#include <string>
 #include <WinSock2.h>
 #include <ostream>
 #include<sstream>
@@ -44,9 +45,11 @@ private:
 	void init();
 public:
 
+	void ConnectAndRecvId();
+
 	void Connect();
 
-	void Recv();
+	std::string Recv();
 
 	void Send(std::string msg);
 

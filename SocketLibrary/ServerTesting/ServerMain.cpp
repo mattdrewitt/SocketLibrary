@@ -10,23 +10,27 @@ using namespace std;
 
 int main() {
 
-	//Create a dealer. 
-
-	//UDPServer udpserver("127.0.0.1", 49154);
-	//udpserver.Accept();
-
-	//cout << "Shutting down.." << endl;
 
 	TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
+	//Create the Dealer. 
+
+	//1)Server Listens 
 	tcpserver.Listen();
-	tcpserver.Send("all");
-	//tcpserver.Accept();
-	//as soon as we accept we have a client who is ready for cards 
-	//dealer.SendUpClient. 
 
-	//tcpserver.Recv();
-	//tcpserver.Send("Gotcha!");
+	//3)Server Accepts 
+	tcpserver.Accept();
 
-	//cout << "Shutting down.." << endl;
+	//4)Server Sends Client Id....how to do this externally.  
+	tcpserver.Send("all"); 
+
+	//6)Server recieves status 
+
+	//7)if status is ready, server sends total money 
+
+	//9) server recieves bet. 
+
+	//10) Server sends cards message somehow...
+			//-need to send client other clients cards and dealers cards and betting options. 
+
 	system("pause");
 }

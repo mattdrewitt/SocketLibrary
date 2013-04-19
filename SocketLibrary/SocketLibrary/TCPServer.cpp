@@ -36,7 +36,7 @@ void TCPServer::shutdown() {
 		WSACleanup();
 	}
 
-void TCPServer::Listen() {
+void TCPServer::ListenAndAccept() {
 		if( listen( hListen, 1 ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to listen" << std::endl;
 			throw "Failed to Listen";
@@ -48,6 +48,25 @@ void TCPServer::Listen() {
 		std::thread th(AcceptThread, hListen);
 		th.join();			
 	}
+
+void TCPServer::Listen() {
+	if( listen( hListen, 1 ) == SOCKET_ERROR ) {
+		std::cerr << "Failed to listen" << std::endl;
+		throw "Failed to Listen";
+	}
+
+	std::cout << "Waiting for a connection" << std::endl;		
+}
+
+void TCPServer::Accept() {
+	char szBuff[DEFAULT_BUFFER];
+	sockaddr_in _client;
+	int iAddrSize = sizeof(_client);
+	hClient = accept( hListen, (sockaddr *)&_client, &iAddrSize );
+	if(hClient == INVALID_SOCKET) {
+		std::cout << "accept() failed.." << std::endl;
+	}
+}
 
 void TCPServer::init() {
 	iPort = DEFAULT_PORT; //port on server to connect to 
@@ -85,40 +104,19 @@ void TCPServer::init() {
 
 
 
-	//void TCPServer::Recv() {
-	//	//std::map<unsigned int, SOCKET>::iterator it;
-	//	//for(it = clientSockets.begin(); it != clientSockets.end(); it++){
-	//		//if(it->first = clientId) 
-	//		//{
-	//	/*		char buf[DEFAULT_BUFFER];
-	//			int bytesRecv = recv( hClient, buf, MAX, 0 );
-	//			std::cout << "Received" << bytesRecv << " bytes" << std::endl;
-	//			std::cout << "Msg: " << buf << std::endl;*/
-	//			//break;
-	//	//	}
-	//	//}
-	//}
+	void TCPServer::Recv() {
+		int const MAX = 256;
+		char buf[DEFAULT_BUFFER];
+		int bytesRecv = recv( hClient, buf, MAX, 0 );
+		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
+		std::cout << "Msg: " << buf << std::endl;
+	}
 
 	void TCPServer::Send(std::string msg) {
 		int const MAX = 256;
 		char buf[MAX];
-
-		if(msg.compare("all") == 0){
-			//we want to loop through all connected sockets
-			//and send them a welcome message? ...just test it for now. 
-			std::map<unsigned int, SOCKET>::iterator map_it;
-			for(map_it = clients.begin(); map_it != clients.end(); ++map_it){
-				msg = "YAYYYYY";
-				strcpy_s( buf, msg.c_str() );
-				int bytesSent = send( (*map_it).second, buf, strlen( buf ) + 1, 0 );
-				std::cout << "Sent: " << buf << " to all." << std::endl;
-			}
-		}
+		std::map<unsigned int, SOCKET>::iterator map_it;
+		strcpy_s( buf, msg.c_str() );
+		int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
+		std::cout << "Sent: " << buf << " to all." << std::endl;
 	}
-
-
-//DWORD WINAPI TCPServer::SendThread(SOCKET sockListen, std::string msg)
-//{
-//
-//}
-
