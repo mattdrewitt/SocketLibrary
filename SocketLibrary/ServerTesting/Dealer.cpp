@@ -1,5 +1,13 @@
+#include <string>
+#include <map>
+#include <TCPServer.hpp>
+#include <vector>
+
+#include "Shoe.hpp"
+#include "Player.hpp"
+#include "Hand.hpp"
+#include "Card.hpp"
 #include "Dealer.hpp"
-#include <iostream>
 
 void Dealer::run() {
 	connection.Send("1");
@@ -14,8 +22,8 @@ void Dealer::run() {
 	p.createBet(0, atoi(command.c_str()));
 
 	// Draw the cards
-	p.hands[0][0].cards.push_back(deck.Draw());
-	p.hands[0][0].cards.push_back(deck.Draw());
+	p.hands[0].cards.push_back(deck.Draw());
+	p.hands[0].cards.push_back(deck.Draw());
 	connection.Send("m");
 	connection.Send("Your Hand: " + p.hands[0].to_string());
 
@@ -48,26 +56,26 @@ void Dealer::client() {
 		{
 		case 'b':
 			//request betting
-			int bet;
-			connection.Send("bet");
-			connection.Send(std::to_string(bet));
+			//int bet;
+			//connection.Send("bet");
+			//connection.Recv(std::to_string(bet));
 
 			break;
 		case 's':
 			connection.Send("s");
 			break;
 		case 'h':
-			playerList[0].hands[0][0].cards.push_back(deck.Draw());
+			playerList[0].hands[0].cards.push_back(deck.Draw());
 
-			if( playerList[0].hands[0][0].value() > 21 )
+			if( playerList[0].hands[0].value() > 21 )
 				connection.Send("f");
 			else
 				connection.Send("s");
 			break;
 		case 'd':
-			playerList[0].hands[0][0].cards.push_back(deck.Draw());
-			playerList[0].createBet(0, playerList[0].hands[0][1]);
-			if( playerList[0].hands[0][0].value() > 21 )
+			playerList[0].hands[0].cards.push_back(deck.Draw());
+			playerList[0].createBet(0, playerList[0].bets[0]);
+			if( playerList[0].hands[0].value() > 21 )
 				connection.Send("f");
 			else
 				connection.Send("s");

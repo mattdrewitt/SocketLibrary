@@ -84,6 +84,7 @@ int main() {
 	//4) Client Recvs Id. 	client.clientId
 	client.clientId = atoi((tcpclient.Recv()).c_str()); 
 	 string messageData = "";
+	 int goodData = 0;
 	//Recv again.....
 	for(;;){
 		char command = (tcpclient.Recv())[0];
@@ -100,7 +101,7 @@ int main() {
 					   //send that we are betting... 
 					    cout << "Please bet now..... " << endl;
 						cin >> bet;	
-						int goodData = checkForInt(bet);
+						goodData = checkForInt(bet);
 						while(goodData == 0 ){
 							bet = "";
 							cout << "Please Bet again, incorrect bet." << endl;

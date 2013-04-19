@@ -1,6 +1,7 @@
 #include <UDPServer.hpp>
 #include <TCPServer.hpp>
 
+#include "Dealer.hpp"
 using namespace std;
 
 
@@ -9,19 +10,20 @@ using namespace std;
 
 
 int main() {
+	Dealer dealer = Dealer();
 
-
-	TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
+	dealer.run();
+	//TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
 	//Create the Dealer. 
 
 	//1)Server Listens 
-	tcpserver.Listen();
+	//tcpserver.Listen();
 
 	//3)Server Accepts 
-	tcpserver.Accept();
+	//tcpserver.Accept();
 
 	//4)Server Sends Client Id....how to do this externally.  
-	tcpserver.Send("all"); 
+	//tcpserver.Send("all"); 
 
 	//6)Server recieves status 
 

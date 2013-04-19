@@ -1,3 +1,6 @@
+#ifndef GUARD_Shoe_hpp_
+#define GUARD_Shoe_hpp_
+
 #include <vector>
 #include <string>
 #include "Card.hpp"
@@ -20,3 +23,5 @@ public:
 	Card Draw();
 	void Discard();
 };
+
+#endif

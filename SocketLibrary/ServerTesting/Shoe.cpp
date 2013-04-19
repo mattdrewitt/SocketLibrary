@@ -6,16 +6,21 @@
 
 void Shoe::init( int c ) {
 	std::string suits[4] = { "Clubs", "Diamonds", "Hearts", "Spades" };
-	std::vector<std::string, int> ranks = {
-		{"Ace", 11}, {"King", 10}, {"Queen", 10}, {"Jack", 10}, 
-		{"Ten", 10}, {"Nine", 10}, {"Eight", 10}, {"Seven", 10},
-		{"Six", 10}, {"Five", 10}, {"Four", 10}, {"Three", 10}, {"Two", 10}
-	};
+	std::vector<std::pair<std::string, int>> ranks;
+	ranks.push_back( std::pair<std::string, int>("Ace", 11) );
+	ranks.push_back( std::pair<std::string, int>("Eight", 8) );
+	ranks.push_back( std::pair<std::string, int>("Ace", 11) );
+	ranks.push_back( std::pair<std::string, int>("Two", 2) );
+	//{
+	//	{"Ace", 11}, {"King", 10}, {"Queen", 10}, {"Jack", 10}, 
+	//	{"Ten", 10}, {"Nine", 9}, {"Eight", 8}, {"Seven", 7},
+	//	{"Six", 6}, {"Five", 5}, {"Four", 4}, {"Three", 3}, {"Two", 2}
+	//};
 
 	for( int x = 0; x < c; x++ ) {
 		for( int y = 0; y < 4; y++ ) {
-			for( int z = 0; z < ranks.size(); z++ ) {
-				deck.push_back(Card( suits[y], ranks[z][0],  ranks[z][1]));
+			for( size_t z = 0; z < ranks.size(); z++ ) {
+				deck.push_back(Card( suits[y], ranks[z].first,  ranks[z].second));
 			}
 		}
 	}
@@ -33,8 +38,15 @@ Card Shoe::Draw() {
 	}
 	else
 	{
+		// Reset the deck from the discarded cards
 		deck.insert( discarded.end(), discarded.begin(), discarded.end() );
 		discarded.clear();
+		std::random_shuffle( deck.begin(), deck.end() );
+
+		Card c = deck.back();
+		deck.pop_back();
+		inPlay.push_back(c);
+		return c;
 	}	
 }
 

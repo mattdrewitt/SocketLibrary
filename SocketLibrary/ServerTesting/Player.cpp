@@ -6,7 +6,7 @@
 bool Player::createBet( int h, int b ) {
 		if( credit >=  b ) {
 			credit -= b;
-			hands[h][1] += b;
+			bets[h] += b;
 			return true;
 		}
 		else
@@ -16,10 +16,10 @@ bool Player::createBet( int h, int b ) {
 	}
 
 	void Player::winBet( int h ) {
-		credit += (hands[h][1] * 2);
-		hands[h][1] = 0;
+		credit += (bets[h] * 2);
+		bets[h] = 0;
 	}
 
 	void Player::lostBet( int h ) {
-		hands[h][1] = 0;
+		bets[h] = 0;
 	}

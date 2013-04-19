@@ -1,3 +1,6 @@
+#ifndef GUARD_Dealer_hpp_
+#define GUARD_Dealer_hpp_
+
 #include <string>
 #include <map>
 #include <TCPServer.hpp>
@@ -29,3 +32,5 @@ public:
 	void run();
 	void client();
 };
+
+#endif

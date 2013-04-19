@@ -6,9 +6,9 @@
 int Hand::value() {
 	int count = 0;
 	int ace = 0;
-	for each(Card c in cards.data) {
-		count += c.value;
-		if( c.rank == "Ace")
+	for( size_t i = 0; i < cards.size(); i++) {
+		count += cards[i].value;
+		if( cards[i].rank == "Ace")
 			ace++;
 	}
 	for( int i = 0; i < ace; i++ ) {
@@ -20,8 +20,8 @@ int Hand::value() {
 
 std::string Hand::to_string() {
 	std::string str = "";
-	for each(Card c in cards.data) {
-		str += c.rank + " of " + c.suit + ", ";
+	for( size_t i = 0; i < cards.size(); i++) {
+		str += cards[i].rank + " of " + cards[i].suit + ", ";
 	}
 	str += "Totaling: " + std::to_string(value()) + "points.";
 	return str; 
