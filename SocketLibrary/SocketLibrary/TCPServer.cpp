@@ -104,12 +104,14 @@ void TCPServer::init() {
 
 
 
-	void TCPServer::Recv() {
+	std::string TCPServer::Recv() {
 		int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hClient, buf, MAX, 0 );
 		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
 		std::cout << "Msg: " << buf << std::endl;
+
+		return buf;
 	}
 
 	void TCPServer::Send(std::string msg) {

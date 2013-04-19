@@ -11,7 +11,7 @@ public:
 	std::vector<Card> cards;
 	Hand(std::vector<Card> c) : cards(c) {}
 	Hand() {}
-
+	
 	int value();
 	std::string to_string();
 };

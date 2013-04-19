@@ -64,7 +64,10 @@ public:
 	~TCPServer() {
 		shutdown();
 	}
-
+	TCPServer& operator = (const TCPServer & rhs)
+	{
+		return *this; 
+	}
 
 private:	
 	void init();
@@ -73,7 +76,7 @@ public:
 	void Send(std::string msg);
 	void Accept();
 	void Listen();
-	void Recv();
+	std::string Recv();
 
 private:
 	static DWORD WINAPI AcceptThread(SOCKET sockListen);
