@@ -290,7 +290,11 @@
     <ClCompile Include="ServerMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Card.hpp" />
     <ClInclude Include="Dealer.hpp" />
+    <ClInclude Include="Hand.hpp" />
+    <ClInclude Include="Player.hpp" />
+    <ClInclude Include="Shoe.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
