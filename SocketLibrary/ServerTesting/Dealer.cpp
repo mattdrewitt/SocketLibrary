@@ -130,8 +130,75 @@ void Dealer::client() {
 				// Create a new hand with the second card in the hand, and then pop it off
 				playerList[i].hands[1] = Hand(playerList[i].hands[0].cards[1]);
 				playerList[i].hands[0].cards.pop_back();
+				for( size_t h = 0; h < 2; h++ )
+				{
+					connection.Send("m");
+					connection.Send("Your current hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+					bool endHand = false;
+					//hand logic
+					for(;;){
+						std::string commands = "hit|stand|double down";
 
+						connection.Send(commands);
+						char cmd = (connection.Recv())[0];
 
+						//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
+						switch (cmd)
+						{
+						case 's':
+							connection.Send("success");
+							endHand = true;
+							break;
+						case 'h':
+							playerList[i].hands[h].cards.push_back(deck.Draw());
+
+							if( playerList[i].hands[h].value() > 21 ){
+								connection.Send("m");
+								connection.Send("Sorry your hand went over 21.");
+								endHand = true;
+								//Reset(playerList[i]);//reset?? 
+							}
+							else{
+								connection.Send("m");
+								connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+							}
+							break;
+						case 'd':
+							if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
+							{
+								connection.Send("fail");
+							}
+							else
+							{
+								playerList[i].hands[h].cards.push_back(deck.Draw());
+								playerList[i].createBet(h, playerList[i].bets[h]);
+								connection.Send("success");
+								if( playerList[i].hands[h].value() > 21 ){
+									connection.Send("m");
+									connection.Send("Sorry your hand #" + std::to_string(h+1) + " went over 21.");
+									endHand = true;
+									//Reset(playerList[i]);//reset?? 
+								}
+								else{
+									connection.Send("m");
+									connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+								}
+							}
+
+							break;
+						case 'x':
+							closesocket(connection.hClient);
+							dealerHand.clear();
+							playerList.clear();
+							endHand = true;
+							break;
+						}
+
+						if( endHand == true) {
+							break;
+						}
+					}
+				}
 				break;
 			case 'x':
 				closesocket(connection.hClient);
