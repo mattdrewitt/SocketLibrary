@@ -32,45 +32,69 @@ void Dealer::run(Player p) {
 	p.bets.push_back(0); //initialize this players bet info to 0. 
 	Hand h;
 	p.hands.push_back(h);
+	playerList.push_back(p);
+
+
 	dealerHand.push_back(h);
 
-	// Request/set bet
-	connection.Send("m");
-	connection.Send("You currently have: " + std::to_string(p.credit) + " credits.");
-	connection.Send("b");
-	std::string command = connection.Recv();
-	if(command == "x"){
-		closesocket(connection.hClient);
-		dealerHand.clear();
-		playerList.clear();
+	
+
+	// Game loop
+	for(;;) {
+		// Accept all the bets
+		bets();
+
+		// Draw and announce everyones cards
+		draw();
+
+		// Run through everyones turn
+		round();
 	}
-	else{
-	std::string bet = connection.Recv();
-	p.createBet(0, atoi(bet.c_str()));
+}
 
-	// Draw the cards
-	p.hands[0].cards.push_back(deck.Draw());
-	p.hands[0].cards.push_back(deck.Draw());
-	connection.Send("m");
-	connection.Send("Your Hand: " + p.hands[0].to_string());
+void Dealer::bets() {
+	for( size_t i = 0; i < playerList.size(); i++ )
+	{
+		connection.Send("m");
+		connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
+		connection.Send("b");
 
+		std::string command = connection.Recv();
+		if(command == "x") {
+			closesocket(connection.hClient);
+			dealerHand.clear();
+			playerList.clear();
+		}
+		else {
+			std::string bet = connection.Recv();
+			playerList[i].createBet(0, atoi(bet.c_str()));
+		}
+	}
+}
+
+void Dealer::draw() {
+	for( size_t i = 0; i < playerList.size(); i++ )
+	{
+		// Draw the cards
+		playerList[i].hands[0].cards.push_back(deck.Draw());
+		playerList[i].hands[0].cards.push_back(deck.Draw());
+		connection.Send("m");
+		connection.Send("Your Hand: " + playerList[i].hands[0].to_string());
+	}
+
+	// Setup and announce dealers hand
 	dealerHand[0].cards.push_back(deck.Draw());
 	dealerHand[0].cards.push_back(deck.Draw());
 	connection.Send("m");
 	connection.Send("Dealers Hand: " + dealerHand[0].to_string());
-
-
-	playerList.push_back(p);
-	client();
-	}
 }
 
-void Dealer::client() {
+void Dealer::round() {
+	// Every Players turn
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
 		connection.Send("t");
 		bool endTurn = false;
-		//turn logic
 		for(;;){
 			std::string commands = "h|s|d";
 
@@ -84,7 +108,7 @@ void Dealer::client() {
 			connection.Send(commands);
 			char cmd = (connection.Recv())[0];
 
-			//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
+			// Every time we recieve from the client we want to push ourselves into a switch to read the given commands 
 			switch (cmd)
 			{
 			case 's':
@@ -211,9 +235,39 @@ void Dealer::client() {
 			}
 
 			if( endTurn == true) {
-				//connection.Send("e"); //end turn
+				connection.Send("e"); //end turn
 				break;
 			}
 		}
 	}
+
+	// Dealers turn
+	while( dealerHand[0].value < 17 )
+		dealerHand[0].cards.push_back(deck.Draw());
+
+	// Evaluate hands and see who won/lost/tied
+	for( size_t i = 0; i < playerList.size(); i++ )	{
+		for( size_t h = 0; h < playerList[i].hands.size(); h++ ) {
+			if( playerList[i].hands[h].value > 21 || playerList[i].hands[h].value < dealerHand[0].value ) {
+				playerList[i].loseBet(h);
+			}
+			else {
+				if( playerList[i].hands[h].value > dealerHand[0].value )
+					playerList[i].winBet(h);
+				else
+					playerList[i].tieBet(h);
+			}
+		}
+		// Clear the bets and hands
+		playerList[i].bets.clear();
+		playerList[i].hands.clear();
+		playerList[i].bets.push_back(0); //initialize this players bet info to 0. 
+		Hand h;
+		playerList[i].hands.push_back(h);
+	}
+
+	// Refresh the dealers hand
+	dealerHand.clear();
+	Hand h;
+	dealerHand.push_back(h);
 }

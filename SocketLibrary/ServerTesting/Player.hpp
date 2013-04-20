@@ -17,7 +17,8 @@ public:
 
 	bool createBet( int h, int b );
 	void winBet( int h );
-	void lostBet( int h );
+	void loseBet( int h );
+	void tieBet( int h );
 };
 
 #endif

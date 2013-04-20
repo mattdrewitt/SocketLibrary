@@ -17,7 +17,7 @@ private:
 	std::vector<Player> playerList;
 	Shoe deck;
 
-	std::vector<Hand>  dealerHand;
+	std::vector<Hand> dealerHand;
 	void Reset(Player p);
 	TCPServer connection;
 	//unsigned int ClientReady(std::string clientMsg);
@@ -31,7 +31,9 @@ public:
 	}
 	Player SetupPlayer();
 	void run(Player p);
-	void client();
+	void bets();
+	void draw();
+	void round();
 	
 };
 
