@@ -1,14 +1,26 @@
 #include <windows.h>
+#include <windowsx.h>
 #include <string>
 
-#define ID_INPUT 1
-#define ID_BUTTON 2
-#define ID_OUTPUT 3
+#define ID_INPUT	1
+#define ID_OUTPUT	2
+#define ID_BET		3
+#define ID_HIT		4
+#define ID_STAND	5
+#define ID_DOUBLE	6
+#define ID_SPLIT	7
+#define ID_READY	8
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static HWND hwndOutput;
 static HWND hwndInput;
-HWND hwndButton;
+HWND hwndBet;
+HWND hwndHit;
+HWND hwndStand;
+HWND hwndDouble;
+HWND hwndSplit;
+HWND hwndReady;
 
 void appendText(LPCTSTR newText)
 {
@@ -60,45 +72,65 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 			10, 10, 560, 400, hwnd, (HMENU) ID_OUTPUT,
 			NULL, NULL);
 
+		
+		hwndHit = CreateWindowW(L"button", L"Hit",
+			WS_VISIBLE | WS_CHILD, 10, 417, 50, 25,
+			hwnd, (HMENU) ID_HIT, NULL, NULL);
+
+		hwndStand = CreateWindowW(L"button", L"Stand",
+			WS_VISIBLE | WS_CHILD, 65, 417, 75, 25,
+			hwnd, (HMENU) ID_STAND, NULL, NULL);
+
+		hwndDouble = CreateWindowW(L"button", L"Double Down",
+			WS_VISIBLE | WS_CHILD, 145, 417, 110, 25,
+			hwnd, (HMENU) ID_DOUBLE, NULL, NULL);
+
+		hwndSplit = CreateWindowW(L"button", L"Split",
+			WS_VISIBLE | WS_CHILD, 260, 417, 60, 25,
+			hwnd, (HMENU) ID_SPLIT, NULL, NULL);
+
+		hwndReady = CreateWindowW(L"button", L"Ready",
+			WS_VISIBLE | WS_CHILD, 325, 417, 75, 25,
+			hwnd, (HMENU) ID_READY, NULL, NULL);
+
 		hwndInput = CreateWindowW(L"Edit", NULL, 
 			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 420, 450, 20, hwnd, (HMENU) ID_INPUT,
+			405, 420, 90, 20, hwnd, (HMENU) ID_INPUT,
 			NULL, NULL);
 
-		hwndButton = CreateWindowW(L"button", L"Submit",
-			WS_VISIBLE | WS_CHILD, 470, 417, 100, 25,
-			hwnd, (HMENU) ID_BUTTON, NULL, NULL);
+		hwndBet = CreateWindowW(L"button", L"Bet",
+			WS_VISIBLE | WS_CHILD, 500, 417, 50, 25,
+			hwnd, (HMENU) ID_BET, NULL, NULL);
 
 		break;
 
 	case WM_COMMAND:	
-
-		if (HIWORD(wParam) == BN_CLICKED) {
-
-			//int len = GetWindowTextLengthW(hwndInput) + 1;
+		switch(wParam)
+		{
+		case ID_BET:
 			wchar_t buff[1024];
+			//Edit_Enable(hwndBet, false);
 			GetWindowText(hwndInput, buff, 1024);
+			appendText(L"Betting: ");
 			wcscat(buff, L"\n");
 			appendText(buff);
-			//GetWindowTextW(hwndInput, text, len);
-			//SetWindowTextW(hwndOutput, text);
-		}
-		break;
-
-	case WM_KEYDOWN:		// Press a key (as in typing)
-			appendText(L"Key Down");
-			switch ( wParam )
-			{ 
-			case VK_RETURN:
-				appendText(L"Enter!");
-
-				wchar_t buff[1024];
-				GetWindowText(hwndInput, buff, 1024);
-				wcscat(buff, L"\n");
-				appendText(buff);
-				break;
-			}
 			break;
+		case ID_HIT:
+			appendText(L"Hit\n");
+			break;
+		case ID_STAND:
+			appendText(L"Stand\n");
+			break;
+		case ID_DOUBLE:
+			appendText(L"Double Down\n");
+			break;
+		case ID_SPLIT:
+			appendText(L"Split\n");
+			break;
+		case ID_READY:
+			appendText(L"Ready\n");
+			break;
+		}
 		break;
 
 	case WM_DESTROY:
