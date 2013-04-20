@@ -35,6 +35,8 @@ void Dealer::run(Player p) {
 	dealerHand.push_back(h);
 
 	// Request/set bet
+	connection.Send("m");
+	connection.Send("You currently have: " + std::to_string(p.credit) + " credits.");
 	connection.Send("b");
 	std::string command = connection.Recv();
 	if(command == "x"){
@@ -70,13 +72,13 @@ void Dealer::client() {
 		bool endTurn = false;
 		//turn logic
 		for(;;){
-			std::string commands = "hit|stand|double down";
+			std::string commands = "h|s|d";
 
 			// If its the player hasn't had a turn, and they have 2 of the same card they can split
 			if( playerList[i].hands[0].cards.size() == 2 )
 			{
 				if( playerList[i].hands[0].cards[0].rank == playerList[i].hands[0].cards[1].rank )
-					commands += "|split";
+					commands += "|p";
 			}
 
 			connection.Send(commands);
@@ -86,7 +88,7 @@ void Dealer::client() {
 			switch (cmd)
 			{
 			case 's':
-				connection.Send("success");
+				connection.Send("s");
 				endTurn = true;
 				break;
 			case 'h':
@@ -106,7 +108,7 @@ void Dealer::client() {
 			case 'd':
 				if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
 				{
-					connection.Send("fail");
+					connection.Send("f");
 				}
 				else
 				{
@@ -137,7 +139,7 @@ void Dealer::client() {
 					bool endHand = false;
 					//hand logic
 					for(;;){
-						std::string commands = "hit|stand|double down";
+						std::string commands = "h|s|d";
 
 						connection.Send(commands);
 						char cmd = (connection.Recv())[0];
@@ -146,7 +148,7 @@ void Dealer::client() {
 						switch (cmd)
 						{
 						case 's':
-							connection.Send("success");
+							connection.Send("s");
 							endHand = true;
 							break;
 						case 'h':
@@ -166,13 +168,13 @@ void Dealer::client() {
 						case 'd':
 							if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
 							{
-								connection.Send("fail");
+								connection.Send("f");
 							}
 							else
 							{
 								playerList[i].hands[h].cards.push_back(deck.Draw());
 								playerList[i].createBet(h, playerList[i].bets[h]);
-								connection.Send("success");
+								connection.Send("s");
 								if( playerList[i].hands[h].value() > 21 ){
 									connection.Send("m");
 									connection.Send("Sorry your hand #" + std::to_string(h+1) + " went over 21.");
