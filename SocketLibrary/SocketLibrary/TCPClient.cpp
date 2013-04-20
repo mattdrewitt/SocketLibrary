@@ -46,7 +46,7 @@ void TCPClient::ConnectAndRecvId() {
 	
   void TCPClient::Connect() {
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
-			std::cerr << "Failed to bind" << std::endl;
+			std::cerr << "Failed to connect" << std::endl;
 			throw "Failed to Connect";
 		}
 	}

@@ -45,7 +45,7 @@ pair<int, string> ProcessChoice(){
 			break;
 		}
 	}
-	
+
 	if(acceptedMoves.count(numCheck)== 1 ){
 		return pair<int, string>(numCheck, choice);
 	}
@@ -57,14 +57,14 @@ pair<int, string> ProcessChoice(){
 
 
 std::string acceptedMoveMessage = "";
-	
+
 void ouputChoices(std::string choices) {
 	//choices sperated based on "|"
 	string word;
 	stringstream stream(choices);
 	acceptedMoveMessage = "Please Chose an option to procceed in the game:\n";
 	int count = 0;
-    while( getline(stream, word, '|') ){
+	while( getline(stream, word, '|') ){
 		count++;
 		acceptedMoveMessage +=	"Choose" + std::to_string(count) + " for " + word + "\n";
 		acceptedMoves.insert(pair<int, string>(count, word));
@@ -74,64 +74,69 @@ void ouputChoices(std::string choices) {
 }
 
 int main() {
-	pair<int, string> choiceToSend;
-	ClientData client;
-	std::string choice;
-	TCPClient tcpclient("127.0.0.1", 80);
-	//2) Client Connects 
-	tcpclient.Connect();
+	try
+	{
+		pair<int, string> choiceToSend;
+		ClientData client;
+		std::string choice;
+		TCPClient tcpclient("127.0.0.1", 80);
+		//2) Client Connects 
+		tcpclient.Connect();
 
-	//4) Client Recvs Id. 	client.clientId
-	client.clientId = atoi((tcpclient.Recv()).c_str()); 
-	 string messageData = "";
-	 int goodData = 0;
-	//Recv again.....
-	for(;;){
-		char command = (tcpclient.Recv())[0];
-		std::string bet;
+		//4) Client Recvs Id. 	client.clientId
+		client.clientId = atoi((tcpclient.Recv()).c_str()); 
+		string messageData = "";
+		int goodData = 0;
+		//Recv again.....
+		for(;;){
+			char command = (tcpclient.Recv())[0];
+			std::string bet;
 
-		//every time we recieve from the server we want to push ourselves into a switch to read the given commands 
-		if(command == 'q'){
-			break;
-		}
-		else {
-			switch (command)
-			{
+			//every time we recieve from the server we want to push ourselves into a switch to read the given commands 
+			if(command == 'q'){
+				break;
+			}
+			else {
+				switch (command)
+				{
 				case 'b':
-					   //send that we are betting... 
-					    cout << "Please bet now..... " << endl;
-						cin >> bet;	
+					//send that we are betting... 
+					cout << "Please bet now..... " << endl;
+					cin >> bet;	
+					goodData = checkForInt(bet);
+					while(goodData == 0 ){
+						bet = "";
+						cout << "Please Bet again, incorrect bet." << endl;
+						cin >> bet;
 						goodData = checkForInt(bet);
-						while(goodData == 0 ){
-							bet = "";
-							cout << "Please Bet again, incorrect bet." << endl;
-							cin >> bet;
-							goodData = checkForInt(bet);
-							if(goodData != 0){
-								break;
-							}
-						}			
-						tcpclient.Send("b");
-						tcpclient.Send(bet);
-						
-					  break;
+						if(goodData != 0){
+							break;
+						}
+					}			
+					tcpclient.Send("b");
+					tcpclient.Send(bet);
+
+					break;
 				case 't': 
-						//s(stand), h(hit), d(double down), p (split)
-						choice = tcpclient.Recv();
-						ouputChoices(choice);
-						choiceToSend = ProcessChoice();
-						//check out what the choice is and send the correct letter depending.
-						
-					  break;
+					//s(stand), h(hit), d(double down), p (split)
+					choice = tcpclient.Recv();
+					ouputChoices(choice);
+					choiceToSend = ProcessChoice();
+					//check out what the choice is and send the correct letter depending.
+
+					break;
 				case 'm': //msg
-						messageData = tcpclient.Recv();
-						//now we want to split the data on "|"
-						//then cout to the screen. 
-					  break;
+					messageData = tcpclient.Recv();
+					//now we want to split the data on "|"
+					//then cout to the screen. 
+					break;
+				}
 			}
 		}
 	}
-	
+	catch (...) {
+
+	}
 
 	cout << "sever send me something..." << endl;
 	system("pause");

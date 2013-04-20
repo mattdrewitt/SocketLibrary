@@ -10,9 +10,15 @@ using namespace std;
 
 
 int main() {
-	Dealer dealer = Dealer();
+	try {
+		Dealer dealer = Dealer();
 
-	dealer.run();
+		dealer.run();
+	}
+	catch (...) {
+
+	}
+	
 	//TCPServer tcpserver(AF_INET, "127.0.0.1", 80);
 	//Create the Dealer. 
 
