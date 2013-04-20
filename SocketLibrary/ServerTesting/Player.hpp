@@ -8,9 +8,12 @@
 
 class Player {
 public:
-	Player() {}
+	Player() {
+		ready = true;
+	}
 	int credit;
 	int Id;
+	bool ready;
 	// A hand and its bet
 	std::vector<Hand> hands;
 	std::vector<int> bets;

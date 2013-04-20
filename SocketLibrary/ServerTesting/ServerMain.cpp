@@ -13,7 +13,7 @@ int main() {
 
 		Dealer dealer = Dealer();
 		Player p = dealer.SetupPlayer();//want to do this once per player when they join 
-		dealer.run(p); //want to do this once per player every round. 
+		dealer.run(); //run the game
 
 
 	system("pause");

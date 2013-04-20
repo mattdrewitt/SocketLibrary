@@ -30,7 +30,7 @@ public:
 		connection.Accept();
 	}
 	Player SetupPlayer();
-	void run(Player p);
+	void run();
 	void bets();
 	void draw();
 	void round();
