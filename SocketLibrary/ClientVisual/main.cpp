@@ -1,6 +1,15 @@
+#include <TCPClient.hpp>
 #include <windows.h>
 #include <windowsx.h>
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <ostream>
+#include <sstream>
+
+
+using namespace std;
 
 #define ID_INPUT	1
 #define ID_OUTPUT	2
@@ -10,6 +19,87 @@
 #define ID_DOUBLE	6
 #define ID_SPLIT	7
 #define ID_READY	8
+
+
+//globals 
+TCPClient tcpclient;
+map<int, string> acceptedMoves;
+string acceptedMoveMessage = "";
+
+//Helper Functions. 
+int checkForInt(std::string bet){
+	bool check = std::all_of(bet.begin(), bet.end(), ::isdigit);
+	if(check){
+		return atoi(bet.c_str());
+	}
+	else{
+		return 0;
+	}
+}
+
+
+pair<int, string> ProcessChoice(){
+	std::string choice;
+	cin >> choice;
+	int numCheck = checkForInt(choice);
+	while(numCheck == 0){
+		//cout << "Incorrect choice. please chose again." << endl;
+		string choice = "";
+		//cin >> choice;
+		numCheck = checkForInt(choice);
+		if(numCheck != 0){
+			break;
+		}
+	}
+
+	if(acceptedMoves.count(numCheck)== 1 ){
+		return pair<int, string>(numCheck, acceptedMoves.find(numCheck)->second);
+	}
+	else{
+		return pair<int, string>(0,"");
+	}
+	//now check if the number is in our map. 	
+}
+
+
+//gonna change to disable the choice buttons 
+void ouputChoices(std::string choices) {
+	//choices sperated based on "|"
+	string word;
+	stringstream stream(choices);
+	acceptedMoveMessage = "Please Chose an option to procceed in the game:\n";
+	int count = 0;
+	while( getline(stream, word, '|') ){
+		count++;
+		acceptedMoveMessage +=	"Choose" + std::to_string(count) + " for " + word + "\n";
+		acceptedMoves.insert(pair<int, string>(count, word));
+	}
+	cout << acceptedMoveMessage << endl;
+	cout << "" << endl;
+	cout << "Your Choice is: " << endl;
+}
+
+BOOL WINAPI ConsoleHandler(DWORD CEvent)
+{
+    char mesg[128];
+	//in each of these cases we want to send a message to the server telling it to
+	//kill our legacy. 
+    switch(CEvent)
+    {
+    case CTRL_CLOSE_EVENT:
+		tcpclient.Send("x");
+        break;
+    case CTRL_LOGOFF_EVENT:
+        
+        break;
+    case CTRL_SHUTDOWN_EVENT:
+       
+        break;
+
+    }
+    return TRUE;
+}
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -48,6 +138,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		220, 220, 600, 490, 0, 0, hInstance, 0);  
 
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler,TRUE);
+
+	//need to start doing client stuff here. 
+	unsigned int clientId;
+	std::string revCommand = "";
+	pair<int, string> choiceToSend;
+	std::string choice;
+	tcpclient = TCPClient("127.0.0.1", 80);
+	//2) Client Connects 
+	tcpclient.Connect();
+	//4) Client Recvs Id. 	client.clientId
+	clientId = atoi((tcpclient.Recv()).c_str()); 
+	string messageData = "";
+	int goodData = 0;
+	appendText(L" Client Id recieved...");
+	appendText(std::to_wstring(clientId).c_str());
+
+
 	while(GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -62,6 +170,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 	//static HWND hwndOutput;
 	//static HWND hwndInput;
 	//HWND hwndButton;
+	//appendText(L"hello");
 
 	switch(msg)
 	{
@@ -71,8 +180,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
 			10, 10, 560, 400, hwnd, (HMENU) ID_OUTPUT,
 			NULL, NULL);
-
-		
+	
 		hwndHit = CreateWindowW(L"button", L"Hit",
 			WS_VISIBLE | WS_CHILD, 10, 417, 50, 25,
 			hwnd, (HMENU) ID_HIT, NULL, NULL);
@@ -103,7 +211,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 			hwnd, (HMENU) ID_BET, NULL, NULL);
 
 		break;
-
+		//add another loop in here ??
 	case WM_COMMAND:	
 		switch(wParam)
 		{

@@ -25,7 +25,7 @@ void TCPClient::init() {
 		service.sin_addr.s_addr = inet_addr( address.c_str() );
 		//int exitCode = EXIT_SUCCESS;
 
-		std::cout << "TCP Client" << std::endl;
+		//std::cout << "TCP Client" << std::endl;
 	}
 
 
@@ -57,7 +57,7 @@ void TCPClient::ConnectAndRecvId() {
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
 		//std::cout << "client Received" << bytesRecv << " bytes" << std::endl;
-		std::cout << "client Msg: " << buf << std::endl;
+		//std::cout << "client Msg: " << buf << std::endl;
 		return buf;
 	}
 
@@ -66,7 +66,7 @@ void TCPClient::ConnectAndRecvId() {
 		char buf[DEFAULT_BUFFER];
 		strcpy_s( buf, msg.c_str() );
 		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
-		std::cout << "client Sent: " << bytesSent << " bytes" << std::endl;
+		//std::cout << "client Sent: " << bytesSent << " bytes" << std::endl;
 	}
 
 
