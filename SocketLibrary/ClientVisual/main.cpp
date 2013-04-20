@@ -156,7 +156,22 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	appendText(L" Client Id recieved...");
 	appendText(std::to_wstring(clientId).c_str());
 
-
+	for(;;){
+	char command = (tcpclient.Recv())[0];
+	  Edit_Enable(hwndBet,false);
+	  Edit_Enable(hwndHit, false);
+      Edit_Enable(hwndStand, false);
+      Edit_Enable(hwndDouble, false);
+      Edit_Enable(hwndSplit, false);
+      Edit_Enable(hwndReady, false);
+	  if(command == 'q'){
+		}
+	  if(command == 'b'){
+		  appendText(L"Please make a bet now.");
+		  Edit_Enable(hwndBet,true);
+		  break;
+		}
+	}
 	while(GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -165,13 +180,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	return (int) msg.wParam;
 }
 
+
+
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, 
 						 WPARAM wParam, LPARAM lParam)
 {
+	wstring tw;
+	std::string t;
 	switch(msg)
 	{
 	case WM_CREATE:
-
 		hwndOutput = CreateWindowW(L"Edit", NULL, 
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
 			10, 10, 560, 400, hwnd, (HMENU) ID_OUTPUT,
@@ -207,8 +226,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 			hwnd, (HMENU) ID_BET, NULL, NULL);
 
 		break;
-	
-		//add another loop in here ??
 
 	case WM_COMMAND:	
 	  switch(wParam)
@@ -216,61 +233,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
 		case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	  }
-
-	 default:
-	  char command = (tcpclient.Recv())[0];
-	  Edit_Enable(hwndBet,false);
-	  Edit_Enable(hwndHit, false);
-      Edit_Enable(hwndStand, false);
-      Edit_Enable(hwndDouble, false);
-      Edit_Enable(hwndSplit, false);
-      Edit_Enable(hwndReady, false);
-	  if(command == 'q'){
-		}
-	  if(command == 'b'){
-		  appendText(L"Please make a bet now.");
-		  Edit_Enable(hwndBet,true);
-		  if(wParam == ID_BET){
-			  wchar_t buff[1024];
+	  	
+	   case ID_BET:
+			  wchar_t buff[1024];			
 			  GetWindowText(hwndInput, buff, 1024);
 			  tcpclient.Send("b");
-			  wstring tw = wcscat(buff, L"\n");
-			  std::string t(tw.begin(), tw.end());
+			  tw = wcscat(buff, L"\n");
+			  t = string(tw.begin(), tw.end());
 			  tcpclient.Send(t);
-			}
+			  appendText(L"Bet Sent to Server.");
+			break;
+		case ID_HIT:
+			//appendText(L"Hit\n");
+			break;
+		case ID_STAND:
+			//appendText(L"Stand\n");
+			break;
+		case ID_DOUBLE:
+			//appendText(L"Double Down\n");
+			break;
+		case ID_SPLIT:
+			//appendText(L"Split\n");
+			break;
+		case ID_READY:
+			//appendText(L"Ready\n");
+			break;
 		}
-		break;
-	}//end switch 
-
-	//	case ID_BET:
-	//		wchar_t buff[1024];
-	//		//Edit_Enable(hwndBet, false);
-	//		GetWindowText(hwndInput, buff, 1024);
-	//		appendText(L"Betting: ");
-	//		wcscat(buff, L"\n");
-	//		appendText(buff);
-	//		break;
-	//	case ID_HIT:
-	//		appendText(L"Hit\n");
-	//		break;
-	//	case ID_STAND:
-	//		appendText(L"Stand\n");
-	//		break;
-	//	case ID_DOUBLE:
-	//		appendText(L"Double Down\n");
-	//		break;
-	//	case ID_SPLIT:
-	//		appendText(L"Split\n");
-	//		break;
-	//	case ID_READY:
-	//		appendText(L"Ready\n");
-	//		break;
-	//	}
-	//	break;
-
-
- 
+	break;
+	}//end outer switch 
 
 	return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
