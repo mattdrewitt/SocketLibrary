@@ -38,7 +38,7 @@ pair<int, string> ProcessChoice(){
 	int numCheck = checkForInt(choice);
 	while(numCheck == 0){
 		cout << "Incorrect choice. please chose again." << endl;
-		choice = "";
+		string choice = "";
 		cin >> choice;
 		numCheck = checkForInt(choice);
 		if(numCheck != 0){
@@ -47,7 +47,7 @@ pair<int, string> ProcessChoice(){
 	}
 
 	if(acceptedMoves.count(numCheck)== 1 ){
-		return pair<int, string>(numCheck, choice);
+		return pair<int, string>(numCheck, acceptedMoves.find(numCheck)->second);
 	}
 	else{
 		return pair<int, string>(0,"");
@@ -69,6 +69,7 @@ void ouputChoices(std::string choices) {
 		acceptedMoveMessage +=	"Choose" + std::to_string(count) + " for " + word + "\n";
 		acceptedMoves.insert(pair<int, string>(count, word));
 	}
+	cout << acceptedMoveMessage << endl;
 	cout << "" << endl;
 	cout << "Your Choice is: " << endl;
 }
@@ -76,6 +77,7 @@ void ouputChoices(std::string choices) {
 int main() {
 	try
 	{
+		std::string revCommand = "";
 		pair<int, string> choiceToSend;
 		ClientData client;
 		std::string choice;
@@ -118,17 +120,29 @@ int main() {
 
 					break;
 				case 't': 
-					//s(stand), h(hit), d(double down), p (split)
 					choice = tcpclient.Recv();
 					ouputChoices(choice);
 					choiceToSend = ProcessChoice();
-					//check out what the choice is and send the correct letter depending.
-
+					
+					if(choiceToSend.second == "hit"){
+						tcpclient.Send("h");
+					}
+					else if(choiceToSend.second == "stand"){
+						tcpclient.Send("s");
+						revCommand = tcpclient.Recv();
+						if(revCommand == "success"){
+							cout << "Successful Stand." << endl;
+						}
+					}
+					else if(choiceToSend.second == "double down"){
+						tcpclient.Send("d");
+					}
+					else if(choiceToSend.second == "split"){
+						tcpclient.Send("p");
+					}
 					break;
 				case 'm': //msg
 					messageData = tcpclient.Recv();
-					//now we want to split the data on "|"
-					//then cout to the screen. 
 					break;
 				}
 			}

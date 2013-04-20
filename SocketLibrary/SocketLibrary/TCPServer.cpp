@@ -92,24 +92,30 @@ void TCPServer::init() {
 	service.sin_addr.s_addr = inet_addr( address.c_str() );
 
 	// bind the port to the IP.  Not exclusive, but says we want to listen to info on that port
+	std::cout << "TCP Server" << std::endl;
+}
+
+
+void TCPServer::Bind() {
+	
 	if( bind( hListen, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 		std::cerr << "Failed to bind" << std::endl;
 		int res = WSAGetLastError();
 		std::cout << "Result: " << res << std::endl;
 		throw "Failed to Bind Port";
 	}
-
-	std::cout << "TCP Server" << std::endl;
+	else {
+		std::cout << "Successful Bind." << std::endl;
+	}
 }
-
 
 
 	std::string TCPServer::Recv() {
 		int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hClient, buf, MAX, 0 );
-		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
-		std::cout << "Msg: " << buf << std::endl;
+		//std::cout << "Server Received" << bytesRecv << " bytes" << std::endl;
+		std::cout << "Server Msg: " << buf << std::endl;
 
 		return buf;
 	}
@@ -120,5 +126,5 @@ void TCPServer::init() {
 		std::map<unsigned int, SOCKET>::iterator map_it;
 		strcpy_s( buf, msg.c_str() );
 		int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
-		std::cout << "Sent: " << buf << " to all." << std::endl;
+		std::cout << "Server Sent: " << buf << " to all." << std::endl;
 	}

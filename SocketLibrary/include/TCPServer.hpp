@@ -50,7 +50,7 @@ private:
 	std::string const address;
 	static unsigned int clientsConnected;
 public:
-	TCPServer() : family(AF_INET), address("172.0.0.1") , port(80){
+	TCPServer() : family(AF_INET), address("127.0.0.1") , port(80){
 		init();
 	}
 
@@ -76,6 +76,7 @@ public:
 	void Send(std::string msg);
 	void Accept();
 	void Listen();
+	void Bind();
 	std::string Recv();
 
 private:

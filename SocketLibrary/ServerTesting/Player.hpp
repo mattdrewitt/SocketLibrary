@@ -10,6 +10,7 @@ class Player {
 public:
 	Player() {}
 	int credit;
+	int Id;
 	// A hand and its bet
 	std::vector<Hand> hands;
 	std::vector<int> bets;

@@ -18,19 +18,21 @@ private:
 	Shoe deck;
 
 	std::vector<Hand>  dealerHand;
-	
+	void Reset(Player p);
 	TCPServer connection;
 	//unsigned int ClientReady(std::string clientMsg);
 public:
 	Dealer() {
 		deck = Shoe(4);
-		connection = TCPServer(AF_INET, "127.0.0.1", 80);
+		connection = TCPServer("127.0.0.1", 80);
+		connection.Bind();
 		connection.Listen();
 		connection.Accept();
 	}
-
-	void run();
+	Player SetupPlayer();
+	void run(Player p);
 	void client();
+	
 };
 
 #endif

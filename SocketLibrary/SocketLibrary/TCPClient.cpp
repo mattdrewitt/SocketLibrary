@@ -56,8 +56,8 @@ void TCPClient::ConnectAndRecvId() {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
-		std::cout << "Received" << bytesRecv << " bytes" << std::endl;
-		std::cout << "Msg: " << buf << std::endl;
+		//std::cout << "client Received" << bytesRecv << " bytes" << std::endl;
+		std::cout << "client Msg: " << buf << std::endl;
 		return buf;
 	}
 
@@ -66,7 +66,7 @@ void TCPClient::ConnectAndRecvId() {
 		char buf[DEFAULT_BUFFER];
 		strcpy_s( buf, msg.c_str() );
 		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
-		std::cout << "Sent: " << bytesSent << " bytes" << std::endl;
+		std::cout << "client Sent: " << bytesSent << " bytes" << std::endl;
 	}
 
 

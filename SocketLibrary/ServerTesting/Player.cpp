@@ -3,6 +3,9 @@
 #include "Card.hpp"
 #include "Player.hpp"
 
+
+
+
 bool Player::createBet( int h, int b ) {
 		if( credit >=  b ) {
 			credit -= b;

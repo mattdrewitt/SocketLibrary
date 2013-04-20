@@ -28,9 +28,12 @@ void Shoe::init( int c ) {
 	std::random_shuffle( deck.begin(), deck.end() );
 }
 
+//issue with draw: we start with the same cards every time, we need to shuffle before we 
+//get a card....i dont think random shuffle works quite like we think. 
 Card Shoe::Draw() {
 	if( deck.size() > 0 )
 	{
+		std::random_shuffle( deck.begin(), deck.end() );
 		Card c = deck.back();
 		deck.pop_back();
 		inPlay.push_back(c);
