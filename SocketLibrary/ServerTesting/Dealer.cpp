@@ -57,8 +57,6 @@ void Dealer::run(Player p) {
 	connection.Send("m");
 	connection.Send("Dealers Hand: " + dealerHand[0].to_string());
 
-	connection.Send("t");
-	connection.Send("hit|stand|double down|split");
 
 	playerList.push_back(p);
 	client();
@@ -66,52 +64,87 @@ void Dealer::run(Player p) {
 }
 
 void Dealer::client() {
-	for(;;){
-		std::string command = connection.Recv();
-		
-		//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
-		char cmd = 'p';
-		if( command == "split" )
-			 cmd = 'p';			
-		else
-			 cmd = command[0];
-		if(cmd == 'x'){
-			//need to close the handle for the client and break.
-			closesocket(connection.hClient);
-			dealerHand.clear();
-			playerList.clear();
-			break;
-		}
-		switch (cmd)
-		{
-		case 's':
-			connection.Send("success");
-			break;
-		case 'h':
-			playerList[0].hands[0].cards.push_back(deck.Draw());
+	for( size_t i = 0; i < playerList.size(); i++ )
+	{
+		connection.Send("t");
+		bool endTurn = false;
+		//turn logic
+		for(;;){
+			std::string commands = "hit|stand|double down";
 
-			if( playerList[0].hands[0].value() > 21 ){
-				connection.Send("m");
-				connection.Send("Sorry your hand went over 21. Dealer Wins.");
-				Reset(playerList[0]);//reset?? 
+			// If its the player hasn't had a turn, and they have 2 of the same card they can split
+			if( playerList[i].hands[0].cards.size() == 2 )
+			{
+				if( playerList[i].hands[0].cards[0].rank == playerList[i].hands[0].cards[1].rank )
+					commands += "|split";
 			}
-			else{
-				connection.Send("m");
-				connection.Send("Your new Hand: " + playerList[0].hands[0].to_string());
-			}
-			break;
-		case 'd':
-			playerList[0].hands[0].cards.push_back(deck.Draw());
-			playerList[0].createBet(0, playerList[0].bets[0]);
-			if( playerList[0].hands[0].value() > 21 )
-				connection.Send("fail");
-			else
+
+			connection.Send(commands);
+			char cmd = (connection.Recv())[0];
+
+			//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
+			switch (cmd)
+			{
+			case 's':
 				connection.Send("success");
-			   
-			break;
-		case 'p':
-			break;
-		}
+				endTurn = true;
+				break;
+			case 'h':
+				playerList[i].hands[0].cards.push_back(deck.Draw());
 
+				if( playerList[i].hands[0].value() > 21 ){
+					connection.Send("m");
+					connection.Send("Sorry your hand went over 21. Dealer Wins.");
+					endTurn = true;
+					//Reset(playerList[i]);//reset?? 
+				}
+				else{
+					connection.Send("m");
+					connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
+				}
+				break;
+			case 'd':
+				if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
+				{
+					connection.Send("fail");
+				}
+				else
+				{
+					playerList[i].hands[0].cards.push_back(deck.Draw());
+					playerList[i].createBet(0, playerList[i].bets[0]);
+					connection.Send("success");
+					if( playerList[i].hands[0].value() > 21 ){
+						connection.Send("m");
+						connection.Send("Sorry your hand went over 21. Dealer Wins.");
+						endTurn = true;
+						//Reset(playerList[i]);//reset?? 
+					}
+					else{
+						connection.Send("m");
+						connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
+					}
+				}
+
+				break;
+			case 'p':
+				// Create a new hand with the second card in the hand, and then pop it off
+				playerList[i].hands[1] = Hand(playerList[i].hands[0].cards[1]);
+				playerList[i].hands[0].cards.pop_back();
+
+
+				break;
+			case 'x':
+				closesocket(connection.hClient);
+				dealerHand.clear();
+				playerList.clear();
+				endTurn = true;
+				break;
+			}
+
+			if( endTurn == true) {
+				//connection.Send("e"); //end turn
+				break;
+			}
+		}
 	}
 }

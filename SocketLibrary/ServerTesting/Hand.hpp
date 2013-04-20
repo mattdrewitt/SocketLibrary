@@ -9,7 +9,9 @@
 class Hand {	
 public:
 	std::vector<Card> cards;
-	Hand(std::vector<Card> c) : cards(c) {}
+	Hand(Card c) {
+		cards.push_back(c);
+	}
 	Hand() {}
 	
 	int value();
