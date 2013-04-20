@@ -21,7 +21,7 @@ void Dealer::Reset(Player p){
 	p.bets.clear();
 	p.hands.clear();
 	dealerHand.clear();
-	run(p); 
+	run(); 
 }
 
 
@@ -261,7 +261,7 @@ void Dealer::round() {
 	}
 
 	// Dealers turn
-	while( dealerHand[0].value < 17 )
+	while( dealerHand[0].value() < 17 )
 		dealerHand[0].cards.push_back(deck.Draw());
 
 	// Evaluate hands and see who won/lost/tied
@@ -269,11 +269,11 @@ void Dealer::round() {
 		if( playerList[i].ready )
 		{
 			for( size_t h = 0; h < playerList[i].hands.size(); h++ ) {
-				if( playerList[i].hands[h].value > 21 || playerList[i].hands[h].value < dealerHand[0].value ) {
+				if( playerList[i].hands[h].value() > 21 || playerList[i].hands[h].value() < dealerHand[0].value() ) {
 					playerList[i].loseBet(h);
 				}
 				else {
-					if( playerList[i].hands[h].value > dealerHand[0].value )
+					if( playerList[i].hands[h].value() > dealerHand[0].value() )
 						playerList[i].winBet(h);
 					else
 						playerList[i].tieBet(h);
