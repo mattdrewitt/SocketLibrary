@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <map>
 #include <ostream>
+#include <Windows.h>
 #include <sstream>
 using namespace std;
 
@@ -57,6 +58,29 @@ pair<int, string> ProcessChoice(){
 
 
 std::string acceptedMoveMessage = "";
+TCPClient tcpclient;
+
+
+BOOL WINAPI ConsoleHandler(DWORD CEvent)
+{
+    char mesg[128];
+	//in each of these cases we want to send a message to the server telling it to
+	//kill our legacy. 
+    switch(CEvent)
+    {
+    case CTRL_CLOSE_EVENT:
+		tcpclient.Send("x");
+        break;
+    case CTRL_LOGOFF_EVENT:
+        
+        break;
+    case CTRL_SHUTDOWN_EVENT:
+       
+        break;
+
+    }
+    return TRUE;
+}
 
 void ouputChoices(std::string choices) {
 	//choices sperated based on "|"
@@ -74,14 +98,22 @@ void ouputChoices(std::string choices) {
 	cout << "Your Choice is: " << endl;
 }
 
+
+
 int main() {
+
+	if (SetConsoleCtrlHandler(
+    (PHANDLER_ROUTINE)ConsoleHandler,TRUE)==FALSE)
+	{
+		cout << "Unable to install handler!\n" << endl;
+	}
 	try
 	{
 		std::string revCommand = "";
 		pair<int, string> choiceToSend;
 		ClientData client;
 		std::string choice;
-		TCPClient tcpclient("127.0.0.1", 80);
+		tcpclient = TCPClient("127.0.0.1", 80);
 		//2) Client Connects 
 		tcpclient.Connect();
 
@@ -149,11 +181,16 @@ int main() {
 		}
 	}
 	catch (...) {
-
 	}
+
 
 	cout << "sever send me something..." << endl;
 	system("pause");
 
 }
+
+
+
+	
+
 

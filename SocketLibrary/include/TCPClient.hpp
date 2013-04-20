@@ -31,6 +31,10 @@ class TCPClient {
 	std::string const address;
 	unsigned int Id;
 public:
+	TCPClient() : family(AF_INET), address("127.0.0.1") , port(80) {
+		init();
+	}
+
 	TCPClient(std::string const a, unsigned short const p) : family(AF_INET), address(a) , port(p) {
 		init();
 	}
@@ -54,6 +58,11 @@ public:
 	void Send(std::string msg);
 
 	void shutdown();
+
+	TCPClient& operator = (const TCPClient & rhs)
+	{
+		return *this; 
+	}
 };
 
 #endif

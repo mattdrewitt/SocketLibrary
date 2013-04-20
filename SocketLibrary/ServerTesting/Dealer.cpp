@@ -37,6 +37,12 @@ void Dealer::run(Player p) {
 	// Request/set bet
 	connection.Send("b");
 	std::string command = connection.Recv();
+	if(command == "x"){
+		closesocket(connection.hClient);
+		dealerHand.clear();
+		playerList.clear();
+	}
+	else{
 	std::string bet = connection.Recv();
 	p.createBet(0, atoi(bet.c_str()));
 
@@ -56,19 +62,26 @@ void Dealer::run(Player p) {
 
 	playerList.push_back(p);
 	client();
+	}
 }
 
 void Dealer::client() {
 	for(;;){
 		std::string command = connection.Recv();
-
+		
 		//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
 		char cmd = 'p';
 		if( command == "split" )
 			 cmd = 'p';			
 		else
 			 cmd = command[0];
-
+		if(cmd == 'x'){
+			//need to close the handle for the client and break.
+			closesocket(connection.hClient);
+			dealerHand.clear();
+			playerList.clear();
+			break;
+		}
 		switch (cmd)
 		{
 		case 's':

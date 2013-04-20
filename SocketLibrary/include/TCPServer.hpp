@@ -29,11 +29,12 @@
 #define DEFAULT_MESSAGE "broadcasting test"
 
 class TCPServer {
+public:
+	SOCKET hClient;
 private:
 	WSADATA wsaData;
 	SOCKET hListen;
-	SOCKET hClient;
-	HANDLE hThread;
+	//HANDLE hThread;
 	int iAddrSize;
 	unsigned int clientCount;
 	sockaddr_in service;
@@ -43,7 +44,7 @@ private:
 	int iPort; //= DEFAULT_PORT;
 	DWORD dwCount; //= DEFAULT_COUNT;
 	BOOL bSendOnly; //= FALSE;
-    static std::map<unsigned int, SOCKET> clients;
+   // static std::map<unsigned int, SOCKET> clients;
 	DWORD dwThreadId;
 	unsigned const int family;
 	unsigned short const port;
@@ -84,50 +85,50 @@ private:
 
 	static DWORD WINAPI SendThread(SOCKET sockListen, std::string msg);
 
-	static DWORD WINAPI ClientThread(LPVOID lpParam){
-		//clients.push_back(clientCount++);
-		SOCKET sock=(SOCKET)lpParam;
-		//clients.push_back(sock);
-		char szBuff[DEFAULT_BUFFER];
-		int		ret,
-			    nLeft,
-				idx;
-		while(1){
-			//perform a blocking revc() call....
-			ret = recv(sock, szBuff, DEFAULT_BUFFER, 0);
-			if(ret == 0){
-				break;
-			}
-			else if(ret == SOCKET_ERROR){
-				std::cout << "recv() failed" << std::endl;
-				break;
-			}
-			std::cout << "bytes recv " << ret << std::endl;
-			std::cout << "recv: " << szBuff << std::endl;
-			//std::cout << "clientid: " << clientCount << std::endl;
-			szBuff[ret] = '\0';
-			//echo the data back. 
-			nLeft = ret; 
-			idx = 0;
-			if(strcmp(szBuff,"done") == 0){
-				std::cout << "sending to you now..";
-				break;
-			}
-			while(nLeft > 0){
-				ret = send(sock, &szBuff[idx], nLeft,0);
-				if(ret == 0){
-					break;
-				}
-				else if (ret == SOCKET_ERROR){
-					std::cout << "Send Failed....tried to send back " << ret << std::endl;
-					break;
-				}
-				nLeft -= ret;
-				idx += ret;
-			}
-		}
-		return 0;
-	}
+	//static DWORD WINAPI ClientThread(LPVOID lpParam){
+	//	//clients.push_back(clientCount++);
+	//	SOCKET sock=(SOCKET)lpParam;
+	//	//clients.push_back(sock);
+	//	char szBuff[DEFAULT_BUFFER];
+	//	int		ret,
+	//		    nLeft,
+	//			idx;
+	//	while(1){
+	//		//perform a blocking revc() call....
+	//		ret = recv(sock, szBuff, DEFAULT_BUFFER, 0);
+	//		if(ret == 0){
+	//			break;
+	//		}
+	//		else if(ret == SOCKET_ERROR){
+	//			std::cout << "recv() failed" << std::endl;
+	//			break;
+	//		}
+	//		std::cout << "bytes recv " << ret << std::endl;
+	//		std::cout << "recv: " << szBuff << std::endl;
+	//		//std::cout << "clientid: " << clientCount << std::endl;
+	//		szBuff[ret] = '\0';
+	//		//echo the data back. 
+	//		nLeft = ret; 
+	//		idx = 0;
+	//		if(strcmp(szBuff,"done") == 0){
+	//			std::cout << "sending to you now..";
+	//			break;
+	//		}
+	//		while(nLeft > 0){
+	//			ret = send(sock, &szBuff[idx], nLeft,0);
+	//			if(ret == 0){
+	//				break;
+	//			}
+	//			else if (ret == SOCKET_ERROR){
+	//				std::cout << "Send Failed....tried to send back " << ret << std::endl;
+	//				break;
+	//			}
+	//			nLeft -= ret;
+	//			idx += ret;
+	//		}
+	//	}
+	//	return 0;
+	//}
 
 
 	void shutdown();
