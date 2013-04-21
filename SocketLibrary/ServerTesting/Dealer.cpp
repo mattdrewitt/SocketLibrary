@@ -115,13 +115,13 @@ void Dealer::round() {
 			connection.Send("t");
 			bool endTurn = false;
 			for(;;){
-				std::string commands = "h|s|d";
+				std::string commands = "hit|stand|double down";
 
 				// If its the player hasn't had a turn, and they have 2 of the same card they can split
 				if( playerList[i].hands[0].cards.size() == 2 )
 				{
 					if( playerList[i].hands[0].cards[0].rank == playerList[i].hands[0].cards[1].rank )
-						commands += "|p";
+						commands += "|split";
 				}
 
 				connection.Send(commands);
@@ -146,6 +146,7 @@ void Dealer::round() {
 					else{
 						connection.Send("m");
 						connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
+						connection.Send("t");
 					}
 					break;
 				case 'd':

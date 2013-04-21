@@ -39,7 +39,7 @@ void TCPClient::ConnectAndRecvId() {
 		else{
 			char buf[DEFAULT_BUFFER];
 			int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
-			std::cout << "Received ID" << buf << std::endl;
+			//std::cout << "Received ID" << buf << std::endl;
 			Id = atoi(buf);
 		}
 	}
