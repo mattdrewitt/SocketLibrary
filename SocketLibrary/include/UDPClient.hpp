@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #ifndef GUARD_UDPClient_hpp_
 #define GUARD_UDPClient_hpp_
 
@@ -19,12 +23,11 @@
 #pragma comment (lib, "ws2_32.lib")
 
 class UDPClient {
-	// Client vars
 	WSADATA wsaData;
 	SOCKET hSocket;
 	sockaddr_in service;
 
-	//Client connection config
+	//Client connection configurations
 	unsigned short const port;
 	std::string const address;
 public:
@@ -33,7 +36,6 @@ public:
 		int iResult = WSAStartup( MAKEWORD(2,2), &wsaData);
 		if( iResult != 0 ) {
 			std::cerr << "WSAStartup failed." << std::endl;
-			//return EXIT_FAILURE;
 		}
 
 		hSocket = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -45,6 +47,7 @@ public:
 
 		std::cout << "UDP Client" << std::endl;
 	}
+
 	~UDPClient() {
 		shutdown();
 	}

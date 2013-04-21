@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #include <UDPClient.hpp>
 #include <iostream>
 #include <string>
@@ -6,6 +10,10 @@
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
 
+
+//name:Connect 
+//purpose: This function continuously attempts to send and recieve to 
+		// the server. it then displays messages to the console. 
 void UDPClient::Connect() {
 	// message loop
 	std::string line;
@@ -31,6 +39,10 @@ void UDPClient::Connect() {
 	}
 }
 
+
+//name: Recv
+//purpose: to recieve data from the server 
+//returns an integer that notifies us if we recieved successfully
 int UDPClient::Recv(std::string& r) {
 	int const MAXLINE = 256;
 	char recvLine[MAXLINE + 1];
@@ -41,10 +53,14 @@ int UDPClient::Recv(std::string& r) {
 	return i;
 }
 
+//name:Connect 
+//purpose: This function sends the given message to the server.  
 void UDPClient::Send(std::string m) {
 	sendto( hSocket, m.c_str(), m.size(), 0, (sockaddr*)&service, sizeof(service) );
 }
 
+//name: shutdown 
+//purpose: This function appropriately closes the used socket and cleans up the WSA code. 
 void UDPClient::shutdown() {
 	closesocket( hSocket );
 	WSACleanup();

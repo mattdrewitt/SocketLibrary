@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012
+
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -5,9 +9,12 @@
 #include "Card.hpp"
 #include "Shoe.hpp"
 
-// random generator:
+//name: myRand
+//purpose: randomly generates numbers 
 int myRand (int i) { return std::rand()%i;}
 
+//name: init 
+//purpose: sets up the shoe upon creation. 
 void Shoe::init( int c ) {
 	std::string suits[4] = { "Clubs", "Diamonds", "Hearts", "Spades" };
 	std::vector<std::pair<std::string, int>> ranks;
@@ -41,8 +48,9 @@ void Shoe::init( int c ) {
 	std::random_shuffle( deck.begin(), deck.end(), myRand );
 }
 
-//issue with draw: we start with the same cards every time, we need to shuffle before we 
-//get a card....i dont think random shuffle works quite like we think. 
+//name: Draw 
+//purpose: a card is picked from the deck and is properly set in the correct lists 
+//so that we properly keep track of cards in play, and discarded cards. 
 Card Shoe::Draw() {
 	if( deck.size() > 0 )
 	{
@@ -66,6 +74,8 @@ Card Shoe::Draw() {
 	}	
 }
 
+//name:Discard 
+//purpose: when a card is finished with it is added to the discarded list. 
 void Shoe::Discard() {
 	discarded.insert( inPlay.end(), inPlay.begin(), inPlay.end() );
 	inPlay.clear();

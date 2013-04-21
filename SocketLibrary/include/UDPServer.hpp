@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #ifndef GUARD_UDPServer_hpp_
 #define GUARD_UDPServer_hpp_
 
@@ -59,13 +63,17 @@ public:
 		}
 		std::cout << "UDP Server" << std::endl;
 	}
+	
 	~UDPServer() {
 		shutdown();
 	}
 
 	void Accept();
+
 	void Recv(std::string& m);
+
 	void Send(std::string const m);
+
 	void shutdown();
 
 };

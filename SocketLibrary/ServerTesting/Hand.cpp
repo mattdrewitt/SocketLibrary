@@ -1,8 +1,14 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012
+
 #include <string>
 #include <vector>
 #include "Hand.hpp"
 #include "Card.hpp"
 
+//name:value
+//purpose:returns the value of a hand of cards. 
 int Hand::value() {
 	int count = 0;
 	int ace = 0;
@@ -18,6 +24,8 @@ int Hand::value() {
 	return count;
 }
 
+//name:
+//purpose: returns the total value of a hand of cards in a nice print out message. 
 std::string Hand::to_string() {
 	std::string str = "";
 	for( size_t i = 0; i < cards.size(); i++) {
