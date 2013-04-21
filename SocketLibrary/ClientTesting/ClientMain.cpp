@@ -130,7 +130,6 @@ int main() {
 					//send that we are betting... 
 					cout << "Please bet now: ";
 					cin >> bet;	
-					goodData = checkForInt(bet);
 					while(betCorrectly == false){
 						goodData = checkForInt(bet);
 						if(goodData != 0 && goodData < credits){
@@ -141,11 +140,13 @@ int main() {
 						}
 						else{
 							cout << "\nIncorrect bet, please bet again: ";
+							bet = "";
+							cin >> bet;
 						}
-						bet = "";
-						cin >> bet;
+						
 					}//end while. 
-
+						tcpclient.Send("b");
+						cout << "You Bet " << bet << " credits.\n" << endl; 
 						tcpclient.Send(bet);
 					break;
 				case 't': 
@@ -159,7 +160,7 @@ int main() {
 					else if(choiceToSend.second == "stand"){
 						tcpclient.Send("s");
 						revCommand = tcpclient.Recv();
-						if(revCommand == "success"){
+						if(revCommand == "s"){
 							cout << "Successful Stand." << endl;
 						}
 					}

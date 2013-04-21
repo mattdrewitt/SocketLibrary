@@ -23,6 +23,6 @@ std::string Hand::to_string() {
 	for( size_t i = 0; i < cards.size(); i++) {
 		str += cards[i].rank + " of " + cards[i].suit + ", ";
 	}
-	str += "Totaling: " + std::to_string(value()) + "points.";
+	str += "Totaling: " + std::to_string(value()) + " points.";
 	return str; 
 }

@@ -65,6 +65,7 @@ void Dealer::bets() {
 		connection.Send("m");
 		connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
 		connection.Send("b");
+		connection.Send(to_string(playerList[i].credit));
 
 		char cmd = (connection.Recv())[0];
 
@@ -78,10 +79,10 @@ void Dealer::bets() {
 			//	playerList[i].ready = false;
 			//	break;
 		case 'b':
-			connection.Send(to_string(playerList[i].credit));
-			playerList[i].ready = true;
+			//playerList[i].ready = true;
 			std::string bet = connection.Recv();
 			playerList[i].createBet(0, atoi(bet.c_str()));
+			cout << "Player " << i << " bet: " << playerList[i].bets[0] << endl;
 			break;
 		}
 	}
@@ -159,16 +160,16 @@ void Dealer::round() {
 					{
 						playerList[i].hands[0].cards.push_back(deck.Draw());
 						playerList[i].createBet(0, playerList[i].bets[0]);
-						connection.Send("success");
+						connection.Send("s");
 						if( playerList[i].hands[0].value() > 21 ){
 							connection.Send("m");
 							connection.Send("Sorry your hand went over 21. Dealer Wins.");
 							endTurn = true;
-							//Reset(playerList[i]);//reset?? 
 						}
 						else{
 							connection.Send("m");
 							connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
+							endTurn = true;
 						}
 					}
 
@@ -184,7 +185,7 @@ void Dealer::round() {
 						bool endHand = false;
 						//hand logic
 						for(;;){
-							std::string commands = "h|s|d";
+							std::string commands = "hit|stand|double down";
 
 							connection.Send(commands);
 							char cmd = (connection.Recv())[0];
@@ -193,7 +194,6 @@ void Dealer::round() {
 							switch (cmd)
 							{
 							case 's':
-								connection.Send("s");
 								endHand = true;
 								break;
 							case 'h':
@@ -201,13 +201,15 @@ void Dealer::round() {
 
 								if( playerList[i].hands[h].value() > 21 ){
 									connection.Send("m");
+									connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+									connection.Send("m");
 									connection.Send("Sorry your hand went over 21.");
 									endHand = true;
-									//Reset(playerList[i]);//reset?? 
 								}
 								else{
 									connection.Send("m");
 									connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+									connection.Send("t");
 								}
 								break;
 							case 'd':
@@ -255,10 +257,8 @@ void Dealer::round() {
 					break;
 				}
 
-				if( endTurn == true) {
-					connection.Send("e"); //end turn
+				if( endTurn == true)
 					break;
-				}
 			}
 		}
 	}
@@ -270,6 +270,8 @@ void Dealer::round() {
 		connection.Send("Dealer hits.\nDealers Hand: " + dealerHand[0].to_string());
 		Sleep(1000); //Sleep for a couple seconds so we dont just spam
 	}
+	connection.Send("m");
+	connection.Send("Dealer Stands.\nDealers Hand: " + dealerHand[0].to_string());
 
 	// Evaluate hands and see who won/lost/tied
 	for( size_t i = 0; i < playerList.size(); i++ )	{
