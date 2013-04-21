@@ -14,16 +14,17 @@
 
 using namespace std;
 
-std::mutex playerMutex;
+mutex playerMutex;
+mutex setupMutex;
+condition_variable setupCond;
 
 void Dealer::Reset(Player p){
 	//reset the players cards and the dealers cards. 
 	p.bets.clear();
 	p.hands.clear();
 	dealerHand.clear();
-	run(); 
+	//run(); 
 }
-
 
 Player Dealer::SetupPlayer() {
 	connection.Send("1");
@@ -35,37 +36,40 @@ Player Dealer::SetupPlayer() {
 	Hand h;
 	p.hands.push_back(h);
 	p.bets.push_back(0);
-	playerList.push_back(p);
+	{ unique_lock<mutex> lk( setupMutex );
+		setupCond.wait( lk ); }
+	{ lock_guard<mutex> tl( playerMutex );
+		playerList.push_back(p);
+	}
 
 	return p;
 }
 
-void Dealer::run() {
+void Dealer::start() {
+	connection = TCPServer("127.0.0.1", 80);
+	connection.Bind();
+	connection.Listen();
+	connection.Accept();
+
+	connection.Send("1");
+	
+	//setup player
+	Player p = Player();
+	p.Id = atoi("1");
+	p.credit = 1000;
 	Hand h;
-	dealerHand.push_back(h);
+	p.hands.push_back(h);
+	p.bets.push_back(0);
 
-	//Launch readiness listen thread
-
-	// Game loop
-	for(;;) {
-		if( playerList.size() > 0 )
-		{
-		// Accept all the bets
-		bets();
-
-		// Draw and announce everyones cards
-		draw();
-
-		// Run through everyones turn
-		round();
-		}
-		else {
-			break;
-		}
+	{ lock_guard<mutex> tl( playerMutex );
+		playerList.push_back(p);
 	}
 }
 
 void Dealer::bets() {
+	setupCond.notify_all();
+	cout << "Checking for new players..." << endl;
+	Sleep(2000);
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
 		if( playerList[i].credit > 0 ) {
@@ -82,14 +86,12 @@ void Dealer::bets() {
 				dealerHand.clear();
 				playerList.clear();
 				break;
-			//case 'u':
-				//	playerList[i].ready = false;
-				//	break;
 			case 'b':
-				//playerList[i].ready = true;
 				std::string bet = connection.Recv();
-				playerList[i].createBet(0, atoi(bet.c_str()));
-				cout << "Player " << i << " bet: " << playerList[i].bets[0] << endl;
+				{ lock_guard<mutex> tl( playerMutex );
+					playerList[i].createBet(0, atoi(bet.c_str()));
+					cout << "Player " << i << " bet: " << playerList[i].bets[0] << endl;
+				}
 				break;
 			}
 		}
@@ -98,7 +100,9 @@ void Dealer::bets() {
 			connection.Send("You have ran out of credits. Game over.");
 			connection.Send("q");
 			//Add removal code
-			playerList.erase(playerList.begin() + i);
+			{ lock_guard<mutex> tl( playerMutex );
+				playerList.erase(playerList.begin() + i);
+			}
 			closesocket(connection.hClient);
 		}
 	}
@@ -110,10 +114,12 @@ void Dealer::draw() {
 		if( playerList[i].ready )
 		{
 			// Draw the cards
-			playerList[i].hands[0].cards.push_back(deck.Draw());
-			playerList[i].hands[0].cards.push_back(deck.Draw());
-			connection.Send("m");
-			connection.Send("Your Hand: " + playerList[i].hands[0].to_string());
+			{ lock_guard<mutex> tl( playerMutex );
+				playerList[i].hands[0].cards.push_back(deck.Draw());
+				playerList[i].hands[0].cards.push_back(deck.Draw());
+				connection.Send("m");
+				connection.Send("Your Hand: " + playerList[i].hands[0].to_string());
+			}
 		}
 	}
 
@@ -157,8 +163,9 @@ void Dealer::round() {
 						endTurn = true;
 						break;
 					case 'h':
-						playerList[i].hands[0].cards.push_back(deck.Draw());
-
+						{ lock_guard<mutex> tl( playerMutex );
+							playerList[i].hands[0].cards.push_back(deck.Draw());
+						}
 						if( playerList[i].hands[0].value() > 21 ){
 							connection.Send("m");
 							connection.Send("Your new hand: " + playerList[i].hands[0].to_string());
@@ -180,10 +187,12 @@ void Dealer::round() {
 						}
 						break;
 					case 'd':
-						playerList[i].createBet(0, playerList[i].bets[0]);
-						connection.Send("m");
-						connection.Send("You hand is now worth: " + to_string(playerList[i].bets[0]));
-						playerList[i].hands[0].cards.push_back(deck.Draw());
+						{ lock_guard<mutex> tl( playerMutex );
+							playerList[i].createBet(0, playerList[i].bets[0]);
+							connection.Send("m");
+							connection.Send("You hand is now worth: " + to_string(playerList[i].bets[0]));
+							playerList[i].hands[0].cards.push_back(deck.Draw());
+						}
 						if( playerList[i].hands[0].value() > 21 ){
 							connection.Send("m");
 							connection.Send("Your new hand: " + playerList[i].hands[0].to_string());
@@ -200,11 +209,13 @@ void Dealer::round() {
 						break;
 					case 'p':
 						// Create a new hand with the second card in the hand, and then pop it off
-						playerList[i].hands.push_back(Hand(playerList[i].hands[0].cards[1]));
-						playerList[i].hands[0].cards.pop_back();
-						playerList[i].hands[0].cards.push_back(deck.Draw());
-						playerList[i].hands[1].cards.push_back(deck.Draw());
-						playerList[i].createBet(1, playerList[i].bets[0]);
+						{ lock_guard<mutex> tl( playerMutex );
+							playerList[i].hands.push_back(Hand(playerList[i].hands[0].cards[1]));
+							playerList[i].hands[0].cards.pop_back();
+							playerList[i].hands[0].cards.push_back(deck.Draw());
+							playerList[i].hands[1].cards.push_back(deck.Draw());
+							playerList[i].createBet(1, playerList[i].bets[0]);
+						}
 						for( size_t h = 0; h < 2; h++ )
 						{
 							connection.Send("m");
@@ -226,8 +237,9 @@ void Dealer::round() {
 									endHand = true;
 									break;
 								case 'h':
-									playerList[i].hands[h].cards.push_back(deck.Draw());
-
+									{ lock_guard<mutex> tl( playerMutex );
+										playerList[i].hands[h].cards.push_back(deck.Draw());
+									}
 									if( playerList[i].hands[h].value() > 21 ){
 										connection.Send("m");
 										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
@@ -242,10 +254,12 @@ void Dealer::round() {
 									}
 									break;
 								case 'd':
-									playerList[i].createBet(h, playerList[i].bets[h]);
-									connection.Send("m");
-									connection.Send("You hand is now worth: " + to_string(playerList[i].bets[h]));
-									playerList[i].hands[h].cards.push_back(deck.Draw());
+									{ lock_guard<mutex> tl( playerMutex );
+										playerList[i].createBet(h, playerList[i].bets[h]);
+										connection.Send("m");
+										connection.Send("You hand is now worth: " + to_string(playerList[i].bets[h]));
+										playerList[i].hands[h].cards.push_back(deck.Draw());
+									}
 									if( playerList[i].hands[h].value() > 21 ) {
 										connection.Send("m");
 										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
@@ -261,7 +275,9 @@ void Dealer::round() {
 									break;
 								case 'x':
 									closesocket(connection.hClient);
-									playerList.erase(playerList.begin() + i);
+									{ lock_guard<mutex> tl( playerMutex );
+										playerList.erase(playerList.begin() + i);
+									}
 									endHand = true;
 									break;
 								}
@@ -318,27 +334,35 @@ void Dealer::round() {
 				if( ( playerList[i].hands[h].value() > 21 && dealerHand[0].value() <= 21 ) || ( playerList[i].hands[h].value() < dealerHand[0].value() && dealerHand[0].value() <= 21 ) ) {
 					connection.Send("m");
 					connection.Send("\nYou lose hand #" + std::to_string(h+1) + ": -" + to_string(playerList[i].bets[h]) + " credits.");
-					playerList[i].loseBet(h);
+					{ lock_guard<mutex> tl( playerMutex );
+						playerList[i].loseBet(h);
+					}
 				}
 				else if( ( playerList[i].hands[h].value() == dealerHand[0].value() ) || ( playerList[i].hands[h].value() > 21 && dealerHand[0].value() > 21 ) )
 				{
 					connection.Send("m");
 					connection.Send("\nYou tie hand #" + std::to_string(h+1) + ".");
-					playerList[i].tieBet(h);
+					{ lock_guard<mutex> tl( playerMutex );
+						playerList[i].tieBet(h);
+					}
 				}
 				else
 				{
 					connection.Send("m");
 					connection.Send("\nYou win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
-					playerList[i].winBet(h);
+					{ lock_guard<mutex> tl( playerMutex );
+						playerList[i].winBet(h);
+					}
 				}
 			}
 			// Clear the bets and hands
-			playerList[i].bets.clear();
-			playerList[i].hands.clear();
-			playerList[i].bets.push_back(0); //initialize this players bet info to 0. 
-			Hand h;
-			playerList[i].hands.push_back(h);
+			{ lock_guard<mutex> tl( playerMutex );
+				playerList[i].bets.clear();
+				playerList[i].hands.clear();
+				playerList[i].bets.push_back(0); //initialize this players bet info to 0. 
+				Hand h;
+				playerList[i].hands.push_back(h);
+			}
 		}
 	}
 

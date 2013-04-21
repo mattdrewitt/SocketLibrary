@@ -53,8 +53,6 @@ void TCPServer::Listen() {
 		std::cerr << "Failed to listen" << std::endl;
 		throw "Failed to Listen";
 	}
-
-	std::cout << "Waiting for a connection" << std::endl;		
 }
 
 void TCPServer::Accept() {
@@ -82,7 +80,6 @@ void TCPServer::init() {
 	if( hListen == INVALID_SOCKET ) {
 		std::cerr << "Error: socket(): " << WSAGetLastError() << std::endl;
 		throw "Failed to Create Socket";
-		//return EXIT_FAILURE;
 	}
 
 	// Create the server address
@@ -90,21 +87,15 @@ void TCPServer::init() {
 	service.sin_port = htons( port );
 	service.sin_addr.s_addr = inet_addr( address.c_str() );
 
-	// bind the port to the IP.  Not exclusive, but says we want to listen to info on that port
-	std::cout << "TCP Server" << std::endl;
 }
 
 
 void TCPServer::Bind() {
-	
 	if( bind( hListen, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 		std::cerr << "Failed to bind" << std::endl;
 		int res = WSAGetLastError();
 		std::cout << "Result: " << res << std::endl;
 		throw "Failed to Bind Port";
-	}
-	else {
-		std::cout << "Successful Bind." << std::endl;
 	}
 }
 
