@@ -99,6 +99,8 @@ int main() {
 	}
 	try
 	{
+		int credits = 0;
+		bool betCorrectly = false;
 		std::string revCommand = "";
 		pair<int, string> choiceToSend;
 		std::string choice;
@@ -123,23 +125,28 @@ int main() {
 				switch (command)
 				{
 				case 'b':
+
+					credits = atoi((tcpclient.Recv()).c_str());
 					//send that we are betting... 
 					cout << "Please bet now: ";
 					cin >> bet;	
 					goodData = checkForInt(bet);
-					while(goodData == 0 ){
-						bet = "";
-						cout << "\nIncorrect bet, please bet again: ";
-						cin >> bet;
+					while(betCorrectly == false){
 						goodData = checkForInt(bet);
-						if(goodData != 0){
-							break;
+						if(goodData != 0 && goodData < credits){
+							betCorrectly = true;
 						}
-					}			
-					tcpclient.Send("b");
-					cout << "You Bet " << bet << " credits.\n" << endl;
-					tcpclient.Send(bet);
+						else if( goodData != 0 && goodData > credits) {
+							cout << "You dont have enough money, bet again." << endl;
+						}
+						else{
+							cout << "\nIncorrect bet, please bet again: ";
+						}
+						bet = "";
+						cin >> bet;
+					}//end while. 
 
+						tcpclient.Send(bet);
 					break;
 				case 't': 
 					choice = tcpclient.Recv();
