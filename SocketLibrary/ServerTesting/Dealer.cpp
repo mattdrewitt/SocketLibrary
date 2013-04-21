@@ -62,28 +62,37 @@ void Dealer::run() {
 void Dealer::bets() {
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
-		connection.Send("m");
-		connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
-		connection.Send("b");
-		connection.Send(to_string(playerList[i].credit));
+		if( playerList[i].credit > 0 ) {
+			connection.Send("m");
+			connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
+			connection.Send("b");
+			connection.Send(to_string(playerList[i].credit));
 
-		char cmd = (connection.Recv())[0];
+			char cmd = (connection.Recv())[0];
 
-		switch( cmd ) {
-		case 'x':
+			switch( cmd ) {
+			case 'x':
+				closesocket(connection.hClient);
+				dealerHand.clear();
+				playerList.clear();
+				break;
+			//case 'u':
+				//	playerList[i].ready = false;
+				//	break;
+			case 'b':
+				//playerList[i].ready = true;
+				std::string bet = connection.Recv();
+				playerList[i].createBet(0, atoi(bet.c_str()));
+				cout << "Player " << i << " bet: " << playerList[i].bets[0] << endl;
+				break;
+			}
+		}
+		else {
+			connection.Send("m");
+			connection.Send("You have ran out of credits. Game over.");
+			connection.Send("q");
+			//Add removal code
 			closesocket(connection.hClient);
-			dealerHand.clear();
-			playerList.clear();
-			break;
-		//case 'u':
-			//	playerList[i].ready = false;
-			//	break;
-		case 'b':
-			//playerList[i].ready = true;
-			std::string bet = connection.Recv();
-			playerList[i].createBet(0, atoi(bet.c_str()));
-			cout << "Player " << i << " bet: " << playerList[i].bets[0] << endl;
-			break;
 		}
 	}
 }
