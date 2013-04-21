@@ -280,7 +280,7 @@ void Dealer::round() {
 									break;
 								case 'd':
 									{ lock_guard<mutex> tl( playerMutex );
-										playerList[i].createBet(h, playerList[i].bets[h]);
+										playerList[i].createBet(static_cast<int>(h), playerList[i].bets[h]);
 										connection.Send("m");
 										connection.Send("You hand is now worth: " + to_string(playerList[i].bets[h]));
 										playerList[i].hands[h].cards.push_back(deck.Draw());
@@ -360,7 +360,7 @@ void Dealer::round() {
 					connection.Send("m");
 					connection.Send("\nYou lose hand #" + std::to_string(h+1) + ": -" + to_string(playerList[i].bets[h]) + " credits.");
 					{ lock_guard<mutex> tl( playerMutex );
-						playerList[i].loseBet(h);
+						playerList[i].loseBet(static_cast<int>(h));
 					}
 				}
 				else if( ( playerList[i].hands[h].value() == dealerHand[0].value() ) || ( playerList[i].hands[h].value() > 21 && dealerHand[0].value() > 21 ) )
@@ -368,7 +368,7 @@ void Dealer::round() {
 					connection.Send("m");
 					connection.Send("\nYou tie hand #" + std::to_string(h+1) + ".");
 					{ lock_guard<mutex> tl( playerMutex );
-						playerList[i].tieBet(h);
+						playerList[i].tieBet(static_cast<int>(h));
 					}
 				}
 				else
@@ -376,7 +376,7 @@ void Dealer::round() {
 					connection.Send("m");
 					connection.Send("\nYou win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
 					{ lock_guard<mutex> tl( playerMutex );
-						playerList[i].winBet(h);
+						playerList[i].winBet(static_cast<int>(h));
 					}
 				}
 			}

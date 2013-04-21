@@ -112,6 +112,6 @@ void TCPServer::Send(std::string msg) {
 		char buf[MAX];
 		std::map<unsigned int, SOCKET>::iterator map_it;
 		strcpy_s( buf, msg.c_str() );
-		int bytesSent = send( hClient, buf, strlen( buf ) + 1, 0 );
+		int bytesSent = send( hClient, buf, static_cast<int>(strlen( buf )) + 1, 0 );
 		std::cout << "Server Sent: " << buf << " to all." << std::endl;
 	}

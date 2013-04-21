@@ -44,17 +44,21 @@ void start() {
 }
 
 int main() {
-	dealer = Dealer();
+	try {
+		dealer = Dealer();
 
-	//thread th(start);
-	//thread th2(game);
-	start();
-	game();
+		//thread th(start);
+		//thread th2(game);
+		start();
+		game();
 
-	//th.join();
-	//th2.join();
-	//dealer.run(); //run the game
+		//th.join();
+		//th2.join();
+		//dealer.run(); //run the game
+	}
+	catch(...) {
 
+	}
 	cout << endl << "Game over.  Server shutting Down" << endl;
 	system("pause");
 }

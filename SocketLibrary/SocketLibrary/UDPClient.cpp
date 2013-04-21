@@ -19,7 +19,7 @@ void UDPClient::Connect() {
 	std::string line;
 
 	while( std::getline(std::cin,line) ) {
-		sendto( hSocket, line.c_str(), line.size(), 0, (sockaddr*)&service, sizeof(service) );
+		sendto( hSocket, line.c_str(), static_cast<int>( line.size() ), 0, (sockaddr*)&service, sizeof(service) );
 
 		// receive the reply
 		std::string msg;
@@ -56,7 +56,7 @@ int UDPClient::Recv(std::string& r) {
 //name:Connect 
 //purpose: This function sends the given message to the server.  
 void UDPClient::Send(std::string m) {
-	sendto( hSocket, m.c_str(), m.size(), 0, (sockaddr*)&service, sizeof(service) );
+	sendto( hSocket, m.c_str(), static_cast<int>(m.size()), 0, (sockaddr*)&service, sizeof(service) );
 }
 
 //name: shutdown 

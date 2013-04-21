@@ -74,7 +74,7 @@ void TCPClient::Send(std::string msg) {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		strcpy_s( buf, msg.c_str() );
-		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
+		int bytesSent = send( hSocket, buf, static_cast<int>(strlen(buf)) + 1, 0 );
 	}
 
 

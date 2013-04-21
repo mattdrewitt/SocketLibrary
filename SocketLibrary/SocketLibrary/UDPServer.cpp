@@ -49,7 +49,7 @@ void UDPServer::Recv(std::string& m) {
 //purpose: This function Sends data to clients based on the given string 
 void UDPServer::Send(std::string const m) {
 	cbClientAddress = sizeof( clientAddress );
-	sendto( hSocket, m.c_str(), m.size(), 0, &clientAddress, cbClientAddress );
+	sendto( hSocket, m.c_str(), static_cast<int>(m.size()), 0, &clientAddress, cbClientAddress );
 }
 
 
