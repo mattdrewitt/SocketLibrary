@@ -62,26 +62,27 @@ void Dealer::run() {
 void Dealer::bets() {
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
-
 		connection.Send("m");
 		connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
 		connection.Send("b");
 
-		std::string command = connection.Recv();
-		if(command == "x") {
+		char cmd = (connection.Recv())[0];
+
+		switch( cmd ) {
+		case 'x':
 			closesocket(connection.hClient);
 			dealerHand.clear();
 			playerList.clear();
-		}
-		if(command == "u") {
+			break;
+		case 'u':
 			playerList[i].ready = false;
-		}
-		else {
+			break;
+		case 'b':
 			playerList[i].ready = true;
 			std::string bet = connection.Recv();
 			playerList[i].createBet(0, atoi(bet.c_str()));
+			break;
 		}
-
 	}
 }
 
@@ -261,8 +262,12 @@ void Dealer::round() {
 	}
 
 	// Dealers turn
-	while( dealerHand[0].value() < 17 )
+	while( dealerHand[0].value() < 17 ) {
 		dealerHand[0].cards.push_back(deck.Draw());
+		connection.Send("m");
+		connection.Send("Dealer hits.\nDealers Hand: " + dealerHand[0].to_string());
+		Sleep(2000); //Sleep for a couple seconds so we dont just spam
+	}
 
 	// Evaluate hands and see who won/lost/tied
 	for( size_t i = 0; i < playerList.size(); i++ )	{
