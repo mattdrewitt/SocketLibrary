@@ -7,8 +7,8 @@
 #include <map>
 #include <ostream>
 #include <sstream>
-
-
+#include <thread>
+#include <mutex>
 
 using namespace std;
 
@@ -23,6 +23,18 @@ using namespace std;
 
 
 //globals 
+mutex consoleMutex;
+mutex playerMutex;
+condition_variable wakeCond;
+
+static HWND hwndOutput;
+static HWND hwndInput;
+HWND hwndBet;
+HWND hwndHit;
+HWND hwndStand;
+HWND hwndDouble;
+HWND hwndSplit;
+HWND hwndReady;
 TCPClient tcpclient;
 map<int, string> acceptedMoves;
 string acceptedMoveMessage = "";
@@ -101,18 +113,6 @@ BOOL WINAPI ConsoleHandler(DWORD CEvent)
     return TRUE;
 }
 
-
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-static HWND hwndOutput;
-static HWND hwndInput;
-HWND hwndBet;
-HWND hwndHit;
-HWND hwndStand;
-HWND hwndDouble;
-HWND hwndSplit;
-HWND hwndReady;
-
 void appendText(LPCTSTR newText)
 {
   DWORD l,r;
@@ -123,6 +123,58 @@ void appendText(LPCTSTR newText)
   SendMessage(hwndOutput, EM_SETSEL,l,r);
 
 }
+
+static DWORD WINAPI playerLoop(std::string messageData){
+	for(;;){
+
+	  char command = (tcpclient.Recv())[0];
+	  Edit_Enable(hwndBet,false);
+	  Edit_Enable(hwndHit, false);
+      Edit_Enable(hwndStand, false);
+      Edit_Enable(hwndDouble, false);
+      Edit_Enable(hwndSplit, false);
+      Edit_Enable(hwndReady, false);
+	  if(command == 'e'){
+		  break;
+		}
+	  switch(command){
+	  case 'q':
+		    break;
+	  case 'b':
+		  appendText(L"Please make a bet now\n");
+		  Edit_Enable(hwndBet,true);
+		  break;
+	  case 'm':
+		  messageData = tcpclient.Recv();
+		  appendText(L"Money: ");
+		  appendText((LPCTSTR)messageData.c_str());
+		  break;		
+		}
+	}
+	return 0;
+}
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+
+
+
+
+
+
+static DWORD WINAPI callCreationLoop(MSG msg) {	
+	  while(GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	  return 0;
+}
+
+void testingThread(MSG &msg) {
+	thread th(callCreationLoop, msg);
+	th.join();	
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					PWSTR lpCmdLine, int nCmdShow )
 {
@@ -153,32 +205,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	clientId = atoi((tcpclient.Recv()).c_str()); 
 	string messageData = "";
 	int goodData = 0;
-	appendText(L" Client Id recieved...");
+	appendText(L"Welcome to Blackjack! Your player ID is: ");
 	appendText(std::to_wstring(clientId).c_str());
+	appendText(L"\n");
+	appendText(L"Let the games begin!");
+	thread th(playerLoop, messageData);
 
-	for(;;){
-	char command = (tcpclient.Recv())[0];
-	  Edit_Enable(hwndBet,false);
-	  Edit_Enable(hwndHit, false);
-      Edit_Enable(hwndStand, false);
-      Edit_Enable(hwndDouble, false);
-      Edit_Enable(hwndSplit, false);
-      Edit_Enable(hwndReady, false);
-	  if(command == 'q'){
-		}
-	  if(command == 'b'){
-		  appendText(L"Please make a bet now.");
-		  Edit_Enable(hwndBet,true);
-		  break;
-		}
-	}
+
 	while(GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
+
+	th.join();
 	return (int) msg.wParam;
 }
+
 
 
 
