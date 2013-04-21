@@ -8,6 +8,8 @@
 
 bool Player::createBet( int h, int b ) {
 	if( credit >=  b ) {
+		if( h == 1 && bets.size() == 1 )
+			bets.push_back(0);
 		credit -= b;
 		bets[h] += b;
 		return true;

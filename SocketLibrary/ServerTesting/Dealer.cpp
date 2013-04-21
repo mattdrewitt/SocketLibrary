@@ -48,6 +48,8 @@ void Dealer::run() {
 
 	// Game loop
 	for(;;) {
+		if( playerList.size() > 0 )
+		{
 		// Accept all the bets
 		bets();
 
@@ -56,6 +58,10 @@ void Dealer::run() {
 
 		// Run through everyones turn
 		round();
+		}
+		else {
+			break;
+		}
 	}
 }
 
@@ -64,7 +70,7 @@ void Dealer::bets() {
 	{
 		if( playerList[i].credit > 0 ) {
 			connection.Send("m");
-			connection.Send("You currently have: " + std::to_string(playerList[i].credit) + " credits.");
+			connection.Send("\nYou currently have: " + std::to_string(playerList[i].credit) + " credits.");
 			connection.Send("b");
 			connection.Send(to_string(playerList[i].credit));
 
@@ -92,6 +98,7 @@ void Dealer::bets() {
 			connection.Send("You have ran out of credits. Game over.");
 			connection.Send("q");
 			//Add removal code
+			playerList.erase(playerList.begin() + i);
 			closesocket(connection.hClient);
 		}
 	}
@@ -123,56 +130,65 @@ void Dealer::round() {
 	{
 		if( playerList[i].ready )
 		{
-			connection.Send("t");
-			bool endTurn = false;
-			for(;;){
-				std::string commands = "hit|stand|double down";
+			if( playerList[i].hands[0].value() == 21 ) {
+				connection.Send("m");
+				connection.Send("\nCongratulations you got 21!");
+			}
+			else {
+				connection.Send("t");
+				bool endTurn = false;
+				for(;;){
+					std::string commands = "hit|stand|double down";
 
-				// If its the player hasn't had a turn, and they have 2 of the same card they can split
-				if( playerList[i].hands[0].cards.size() == 2 )
-				{
-					if( playerList[i].hands[0].cards[0].rank == playerList[i].hands[0].cards[1].rank )
-						commands += "|split";
-				}
+					// If its the player hasn't had a turn, and they have 2 of the same card they can split
+					if( playerList[i].hands[0].cards.size() == 2 )
+					{
+						if( playerList[i].hands[0].cards[0].value == playerList[i].hands[0].cards[1].value )
+							commands += "|split";
+					}
 
-				connection.Send(commands);
-				char cmd = (connection.Recv())[0];
+					connection.Send(commands);
+					char cmd = (connection.Recv())[0];
 
-				// Every time we recieve from the client we want to push ourselves into a switch to read the given commands 
-				switch (cmd)
-				{
-				case 's':
-					connection.Send("s");
-					endTurn = true;
-					break;
-				case 'h':
-					playerList[i].hands[0].cards.push_back(deck.Draw());
-
-					if( playerList[i].hands[0].value() > 21 ){
-						connection.Send("m");
-						connection.Send("Sorry your hand went over 21. Dealer Wins.");
+					// Every time we recieve from the client we want to push ourselves into a switch to read the given commands 
+					switch (cmd)
+					{
+					case 's':
 						endTurn = true;
-						//Reset(playerList[i]);//reset?? 
-					}
-					else{
-						connection.Send("m");
-						connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
-						connection.Send("t");
-					}
-					break;
-				case 'd':
-					if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
-					{
-						connection.Send("f");
-					}
-					else
-					{
+						break;
+					case 'h':
 						playerList[i].hands[0].cards.push_back(deck.Draw());
-						playerList[i].createBet(0, playerList[i].bets[0]);
-						connection.Send("s");
+
 						if( playerList[i].hands[0].value() > 21 ){
 							connection.Send("m");
-							connection.Send("Sorry your hand went over 21. Dealer Wins.");
+							connection.Send("Your new hand: " + playerList[i].hands[0].to_string());
+							connection.Send("m");
+							connection.Send("Sorry your hand went over 21.\n");
+							endTurn = true;
+						}
+						else if( playerList[i].hands[0].value() == 21 ){
+							connection.Send("m");
+							connection.Send("Your new hand: " + playerList[i].hands[0].to_string());
+							connection.Send("m");
+							connection.Send("Congratulations you got 21!\n");
+							endTurn = true;
+						}
+						else{
+							connection.Send("m");
+							connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
+							connection.Send("t");
+						}
+						break;
+					case 'd':
+						playerList[i].createBet(0, playerList[i].bets[0]);
+						connection.Send("m");
+						connection.Send("You hand is now worth: " + to_string(playerList[i].bets[0]));
+						playerList[i].hands[0].cards.push_back(deck.Draw());
+						if( playerList[i].hands[0].value() > 21 ){
+							connection.Send("m");
+							connection.Send("Your new hand: " + playerList[i].hands[0].to_string());
+							connection.Send("m");
+							connection.Send("Sorry your hand went over 21.");
 							endTurn = true;
 						}
 						else{
@@ -180,94 +196,93 @@ void Dealer::round() {
 							connection.Send("Your new Hand: " + playerList[i].hands[0].to_string());
 							endTurn = true;
 						}
-					}
 
-					break;
-				case 'p':
-					// Create a new hand with the second card in the hand, and then pop it off
-					playerList[i].hands[1] = Hand(playerList[i].hands[0].cards[1]);
-					playerList[i].hands[0].cards.pop_back();
-					for( size_t h = 0; h < 2; h++ )
-					{
-						connection.Send("m");
-						connection.Send("Your current hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
-						bool endHand = false;
-						//hand logic
-						for(;;){
-							std::string commands = "hit|stand|double down";
+						break;
+					case 'p':
+						// Create a new hand with the second card in the hand, and then pop it off
+						playerList[i].hands.push_back(Hand(playerList[i].hands[0].cards[1]));
+						playerList[i].hands[0].cards.pop_back();
+						playerList[i].hands[0].cards.push_back(deck.Draw());
+						playerList[i].hands[1].cards.push_back(deck.Draw());
+						playerList[i].createBet(1, playerList[i].bets[0]);
+						for( size_t h = 0; h < 2; h++ )
+						{
+							connection.Send("m");
+							connection.Send("Your current hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+							bool endHand = false;
+							connection.Send("t");
+							//hand logic
+							for(;;) {
+								cout << h;
+								std::string commands = "hit|stand|double down";
 
-							connection.Send(commands);
-							char cmd = (connection.Recv())[0];
+								connection.Send(commands);
+								char cmd = (connection.Recv())[0];
 
-							//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
-							switch (cmd)
-							{
-							case 's':
-								endHand = true;
-								break;
-							case 'h':
-								playerList[i].hands[h].cards.push_back(deck.Draw());
-
-								if( playerList[i].hands[h].value() > 21 ){
-									connection.Send("m");
-									connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
-									connection.Send("m");
-									connection.Send("Sorry your hand went over 21.");
+								//every time we recieve from the client we want to push ourselves into a switch to read the given commands 
+								switch (cmd)
+								{
+								case 's':
 									endHand = true;
-								}
-								else{
-									connection.Send("m");
-									connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
-									connection.Send("t");
-								}
-								break;
-							case 'd':
-								if( playerList[i].createBet(0, playerList[i].bets[0]) == false )
-								{
-									connection.Send("f");
-								}
-								else
-								{
+									break;
+								case 'h':
 									playerList[i].hands[h].cards.push_back(deck.Draw());
-									playerList[i].createBet(h, playerList[i].bets[h]);
-									connection.Send("s");
+
 									if( playerList[i].hands[h].value() > 21 ){
 										connection.Send("m");
-										connection.Send("Sorry your hand #" + std::to_string(h+1) + " went over 21.");
+										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+										connection.Send("m");
+										connection.Send("Sorry your hand went over 21.");
 										endHand = true;
-										//Reset(playerList[i]);//reset?? 
 									}
 									else{
 										connection.Send("m");
 										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+										connection.Send("t");
 									}
+									break;
+								case 'd':
+									playerList[i].createBet(h, playerList[i].bets[h]);
+									connection.Send("m");
+									connection.Send("You hand is now worth: " + to_string(playerList[i].bets[h]));
+									playerList[i].hands[h].cards.push_back(deck.Draw());
+									if( playerList[i].hands[h].value() > 21 ) {
+										connection.Send("m");
+										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+										connection.Send("m");
+										connection.Send("Sorry your hand went over 21.");
+										endHand = true;
+									}
+									else {
+										connection.Send("m");
+										connection.Send("Your new hand #" + std::to_string(h+1) + ": " + playerList[i].hands[h].to_string());
+										endHand = true;
+									}
+									break;
+								case 'x':
+									closesocket(connection.hClient);
+									playerList.erase(playerList.begin() + i);
+									endHand = true;
+									break;
 								}
 
-								break;
-							case 'x':
-								closesocket(connection.hClient);
-								dealerHand.clear();
-								playerList.clear();
-								endHand = true;
-								break;
-							}
-
-							if( endHand == true) {
-								break;
+								if( endHand == true ) {
+									break;
+								}
 							}
 						}
+						endTurn = true;
+						break;
+					case 'x':
+						closesocket(connection.hClient);
+						playerList.erase(playerList.begin() + i);
+						endTurn = true;
+						break;
 					}
-					break;
-				case 'x':
-					closesocket(connection.hClient);
-					dealerHand.clear();
-					playerList.clear();
-					endTurn = true;
-					break;
-				}
 
-				if( endTurn == true)
-					break;
+					if( endTurn == true)
+						break;
+				}
 			}
 		}
 	}
@@ -279,32 +294,43 @@ void Dealer::round() {
 		connection.Send("Dealer hits.\nDealers Hand: " + dealerHand[0].to_string());
 		Sleep(1000); //Sleep for a couple seconds so we dont just spam
 	}
-	connection.Send("m");
-	connection.Send("Dealer Stands.\nDealers Hand: " + dealerHand[0].to_string());
+	if( dealerHand[0].value() < 21 )
+	{
+		connection.Send("m");
+		connection.Send("Dealer Stands.\nDealers Hand: " + dealerHand[0].to_string());
+	}
+	else if( dealerHand[0].value() == 21 )
+	{
+		connection.Send("m");
+		connection.Send("Dealer got 21!");
+	}
+	else
+	{
+		connection.Send("m");
+		connection.Send("Dealer Busts.");
+	}
 
 	// Evaluate hands and see who won/lost/tied
 	for( size_t i = 0; i < playerList.size(); i++ )	{
 		if( playerList[i].ready )
 		{
 			for( size_t h = 0; h < playerList[i].hands.size(); h++ ) {
-				if( playerList[i].hands[h].value() > 21 || playerList[i].hands[h].value() < dealerHand[0].value() ) {
+				if( ( playerList[i].hands[h].value() > 21 && dealerHand[0].value() <= 21 ) || ( playerList[i].hands[h].value() < dealerHand[0].value() && dealerHand[0].value() <= 21 ) ) {
 					connection.Send("m");
-					connection.Send("You lose hand #" + std::to_string(h+1) + ": -" + to_string(playerList[i].bets[h]) + " credits.");
+					connection.Send("\nYou lose hand #" + std::to_string(h+1) + ": -" + to_string(playerList[i].bets[h]) + " credits.");
 					playerList[i].loseBet(h);
 				}
-				else {
-					if( playerList[i].hands[h].value() > dealerHand[0].value() )
-					{
-						connection.Send("m");
-						connection.Send("You win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
-						playerList[i].winBet(h);
-					}
-					else
-					{
-						connection.Send("m");
-						connection.Send("You tie hand #" + std::to_string(h+1) + ".");
-						playerList[i].tieBet(h);
-					}
+				else if( ( playerList[i].hands[h].value() == dealerHand[0].value() ) || ( playerList[i].hands[h].value() > 21 && dealerHand[0].value() > 21 ) )
+				{
+					connection.Send("m");
+					connection.Send("\nYou tie hand #" + std::to_string(h+1) + ".");
+					playerList[i].tieBet(h);
+				}
+				else
+				{
+					connection.Send("m");
+					connection.Send("\nYou win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
+					playerList[i].winBet(h);
 				}
 			}
 			// Clear the bets and hands

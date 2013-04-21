@@ -29,6 +29,7 @@ pair<int, string> ProcessChoice(){
 	std::string choice = "";
 	while(acceptedChoice == false){
 		cin >> choice;
+		cout << endl;
 		numCheck = checkForInt(choice);
 		if(numCheck == 0){
 			cout << "Incorrect choice. please chose again." << endl;
@@ -71,20 +72,31 @@ BOOL WINAPI ConsoleHandler(DWORD CEvent)
     return TRUE;
 }
 
-void ouputChoices(std::string choices) {
+void ouputChoices(std::string choices, int credit, int bet) {
 	//choices sperated based on "|"
 	string word;
 	stringstream stream(choices);
-	acceptedMoveMessage = "Please Chose an option to procceed in the game:\n";
+	acceptedMoveMessage = "Please choose an option to procceed in the game:\n";
 	int count = 0;
 	while( getline(stream, word, '|') ){
-		count++;
-		acceptedMoveMessage +=	"Choose (" + std::to_string(count) + ") for " + word + "\n";
-		acceptedMoves.insert(pair<int, string>(count, word));
+		if( (word == "double down" || word == "split") )
+		{
+			if(  (credit - (bet * 2)) > 0 )
+			{
+				count++;
+				acceptedMoveMessage +=	"Choose (" + std::to_string(count) + ") for " + word + "\n";
+				acceptedMoves.insert(pair<int, string>(count, word));
+			}
+		}
+		else
+		{
+			count++;
+			acceptedMoveMessage +=	"Choose (" + std::to_string(count) + ") for " + word + "\n";
+			acceptedMoves.insert(pair<int, string>(count, word));
+		}
 	}
-	cout << acceptedMoveMessage << endl;
-	cout << "" << endl;
-	cout << "Your Choice is: " << endl;
+	cout << endl << acceptedMoveMessage << endl;
+	cout << "Your Choice is: ";
 }
 
 
@@ -99,6 +111,7 @@ int main() {
 	try
 	{
 		int credits = 0;
+		std::string bet;
 		bool betCorrectly = false;
 		std::string revCommand = "";
 		pair<int, string> choiceToSend;
@@ -114,7 +127,6 @@ int main() {
 		//Recv again.....
 		for(;;){
 			char command = (tcpclient.Recv())[0];
-			std::string bet;
 
 			//every time we recieve from the server we want to push ourselves into a switch to read the given commands 
 			if(command == 'q'){
@@ -124,18 +136,20 @@ int main() {
 				switch (command)
 				{
 				case 'b':
-
+					bet = "";
 					credits = atoi((tcpclient.Recv()).c_str());
 					//send that we are betting... 
-					cout << "Please bet now: ";
+					cout << endl << "Please bet now: ";
 					cin >> bet;	
 					while(betCorrectly == false){
 						goodData = checkForInt(bet);
-						if(goodData != 0 && goodData < credits){
+						if(goodData != 0 && goodData <= credits){
 							betCorrectly = true;
 						}
-						else if( goodData != 0 && goodData >= credits) {
-							cout << "You dont have enough money, bet again." << endl;
+						else if( goodData != 0 && goodData > credits) {
+							cout << "You dont have enough money, bet again: ";
+							bet = "";
+							cin >> bet;
 						}
 						else{
 							cout << "\nIncorrect bet, please bet again: ";
@@ -150,7 +164,7 @@ int main() {
 					break;
 				case 't': 
 					choice = tcpclient.Recv();
-					ouputChoices(choice);
+					ouputChoices(choice, credits, stoi(bet));
 					choiceToSend = ProcessChoice();
 					
 					if(choiceToSend.second == "hit"){
@@ -158,10 +172,6 @@ int main() {
 					}
 					else if(choiceToSend.second == "stand"){
 						tcpclient.Send("s");
-						revCommand = tcpclient.Recv();
-						if(revCommand == "s"){
-							cout << "Successful Stand." << endl;
-						}
 					}
 					else if(choiceToSend.second == "double down"){
 						tcpclient.Send("d");
@@ -172,7 +182,7 @@ int main() {
 					break;
 				case 'm': //msg
 					messageData = tcpclient.Recv();
-					cout << messageData << "\n" << endl;
+					cout << messageData << endl;
 					break;
 				}
 			}
@@ -181,14 +191,5 @@ int main() {
 	catch (...) {
 	}
 
-
-	cout << "sever send me something..." << endl;
 	system("pause");
-
 }
-
-
-
-	
-
-

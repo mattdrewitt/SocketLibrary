@@ -1,8 +1,12 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <ctime> 
 #include "Card.hpp"
 #include "Shoe.hpp"
+
+// random generator:
+int myRand (int i) { return std::rand()%i;}
 
 void Shoe::init( int c ) {
 	std::string suits[4] = { "Clubs", "Diamonds", "Hearts", "Spades" };
@@ -33,8 +37,8 @@ void Shoe::init( int c ) {
 			}
 		}
 	}
-
-	std::random_shuffle( deck.begin(), deck.end() );
+	std::srand ( unsigned ( std::time(0) ) );
+	std::random_shuffle( deck.begin(), deck.end(), myRand );
 }
 
 //issue with draw: we start with the same cards every time, we need to shuffle before we 
