@@ -24,25 +24,24 @@ int checkForInt(std::string bet){
 map<int, string> acceptedMoves;
 
 pair<int, string> ProcessChoice(){
-	std::string choice;
-	cin >> choice;
-	int numCheck = checkForInt(choice);
-	while(numCheck == 0){
-		cout << "Incorrect choice. please chose again." << endl;
-		string choice = "";
+	bool acceptedChoice = false;
+	int numCheck = 0;
+	std::string choice = "";
+	while(acceptedChoice == false){
 		cin >> choice;
 		numCheck = checkForInt(choice);
-		if(numCheck != 0){
-			break;
+		if(numCheck == 0){
+			cout << "Incorrect choice. please chose again." << endl;
+		}
+		if(acceptedMoves.count(numCheck)== 1 ){
+			acceptedChoice = true;
+		}
+
+		else{
+			cout << "Incorrect choice, please choose again." << endl;
 		}
 	}
-
-	if(acceptedMoves.count(numCheck)== 1 ){
-		return pair<int, string>(numCheck, acceptedMoves.find(numCheck)->second);
-	}
-	else{
-		return pair<int, string>(0,"");
-	}
+	return pair<int, string>(numCheck, acceptedMoves.find(numCheck)->second);	
 	//now check if the number is in our map. 	
 }
 
@@ -135,7 +134,7 @@ int main() {
 						if(goodData != 0 && goodData < credits){
 							betCorrectly = true;
 						}
-						else if( goodData != 0 && goodData > credits) {
+						else if( goodData != 0 && goodData >= credits) {
 							cout << "You dont have enough money, bet again." << endl;
 						}
 						else{
