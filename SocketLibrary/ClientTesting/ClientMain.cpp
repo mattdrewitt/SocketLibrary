@@ -1,7 +1,7 @@
 //Developers: Kayla Boyer and Matt Drewitt
 //version: 1.0
 //Date: April 21st 2012 
-
+#include <crtdbg.h>
 #include <UDPClient.hpp>
 #include <TCPClient.hpp>
 #include <string>
@@ -131,7 +131,8 @@ void ouputChoices(std::string choices, int credit, int bet) {
 
 int main() {
 	cout << "*****************Client Blackjack******************" << endl;
-
+	// For when the 2 projects start together
+	Sleep(1000);
 	//set the handler to ensure that on close we properly clean up our socket handle.
 	if (SetConsoleCtrlHandler(
     (PHANDLER_ROUTINE)ConsoleHandler,TRUE)==FALSE)

@@ -2,14 +2,14 @@
 
 #include "Dealer.hpp"
 using namespace std;
-
+#include <crtdbg.h>
 Dealer dealer;
 mutex wakeMutex;
 condition_variable wakeCond;
 
 void game() {
-	{ unique_lock<mutex> lk( wakeMutex );
-		wakeCond.wait( lk ); }
+	//{ unique_lock<mutex> lk( wakeMutex );
+	//	wakeCond.wait( lk ); }
 	//dealer.SetupPlayer();
 	Hand h;
 	dealer.dealerHand.push_back(h);
@@ -34,22 +34,19 @@ void game() {
 
 void start() {
 	dealer.start();
-	wakeCond.notify_all();
+	//wakeCond.notify_all();
 }
 
 int main() {
-
 	dealer = Dealer();
-	//Player p = dealer.SetupPlayer();//want to do this once per player when they join 
 
-	vector<thread> threads;
-	threads.push_back( thread(start) );
-	threads.push_back( thread(game) );
+	//thread th(start);
+	//thread th2(game);
+	start();
+	game();
 
-	for( auto& t : threads )
-	{
-		t.join();
-	}
+	//th.join();
+	//th2.join();
 	//dealer.run(); //run the game
 
 	cout << endl << "Game over.  Server shutting Down" << endl;

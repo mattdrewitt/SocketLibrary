@@ -61,15 +61,15 @@ void Dealer::start() {
 	p.hands.push_back(h);
 	p.bets.push_back(0);
 
-	{ lock_guard<mutex> tl( playerMutex );
+	//{ lock_guard<mutex> tl( playerMutex );
 		playerList.push_back(p);
-	}
+	//}
 }
 
 void Dealer::bets() {
-	setupCond.notify_all();
+	//setupCond.notify_all();
 	cout << "Checking for new players..." << endl;
-	Sleep(2000);
+	//Sleep(2000);
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
 		if( playerList[i].credit > 0 ) {
@@ -83,8 +83,7 @@ void Dealer::bets() {
 			switch( cmd ) {
 			case 'x':
 				closesocket(connection.hClient);
-				dealerHand.clear();
-				playerList.clear();
+				playerList.erase(playerList.begin() + i);
 				break;
 			case 'b':
 				std::string bet = connection.Recv();
