@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #ifndef GUARD_TCPServer_hpp_
 #define GUARD_TCPServer_hpp_
 
@@ -28,6 +32,7 @@
 #define DEFAULT_PORT  5150
 #define DEFAULT_MESSAGE "broadcasting test"
 
+//purpose: this class acts as a facade for handling server side tcp protocol logic. 
 class TCPServer {
 public:
 	SOCKET hClient;

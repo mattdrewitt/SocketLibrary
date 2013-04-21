@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #ifndef GUARD_TCPClient_hpp_
 #define GUARD_TCPClient_hpp_
 
@@ -21,6 +25,8 @@
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
 #define DEFAULT_BUFFER 2048
+
+//purpose: this class acts as a Facade for handling client side logic when dealing with tcp protocols. 
 class TCPClient {
 	WSADATA wsaData;
 	SOCKET hSocket;

@@ -1,6 +1,11 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #include <TCPClient.hpp>
 
-
+//name: init 
+//purpose: this function initializes the WSA information, creates the socket and sets up its vital information 
 void TCPClient::init() { 
 		
 		// initialize WSA
@@ -29,8 +34,8 @@ void TCPClient::init() {
 	}
 
 
-
-
+//name: ConnectAndRecvId
+//purpose: this function contains a connect that immediately expects to recieve an Id from the server 
 void TCPClient::ConnectAndRecvId() {
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to bind" << std::endl;
@@ -44,6 +49,8 @@ void TCPClient::ConnectAndRecvId() {
 		}
 	}
 	
+//name: Connect 
+//purpose: this function connects the client to the server 
   void TCPClient::Connect() {
 		if( connect( hSocket, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to connect" << std::endl;
@@ -51,26 +58,29 @@ void TCPClient::ConnectAndRecvId() {
 		}
 	}
 
-
+//name:Recv
+//purpose: accepts the reieved data from the sever and returns it 
   std::string TCPClient::Recv() {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hSocket, buf, DEFAULT_BUFFER, 0 );
-		//std::cout << "client Received" << bytesRecv << " bytes" << std::endl;
-		//std::cout << "client Msg: " << buf << std::endl;
 		return buf;
 	}
 
-	void TCPClient::Send(std::string msg) {
+
+ //name: Send 
+//purpose: sends accepted data from the client to the server 
+void TCPClient::Send(std::string msg) {
 		unsigned int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		strcpy_s( buf, msg.c_str() );
 		int bytesSent = send( hSocket, buf, strlen( buf ) + 1, 0 );
-		//std::cout << "client Sent: " << bytesSent << " bytes" << std::endl;
 	}
 
 
-	void TCPClient::shutdown() {
+//name:shutdown 
+//purpose:properly closes the socket and shuts down the WSA code 
+void TCPClient::shutdown() {
 		closesocket( hSocket );
 		WSACleanup();
 	}

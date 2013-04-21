@@ -1,3 +1,6 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
 #ifndef GUARD_Dealer_hpp_
 #define GUARD_Dealer_hpp_
 
@@ -11,7 +14,8 @@
 #include "Hand.hpp"
 #include "Card.hpp"
 
-//Want the dealer to be like a singleton....not quite sure how to ensure that. 
+//purpose: The dealer class's purpose is to act like a singleton and take care of all players, decks, 
+//and TCPServer connection information. 
 class Dealer {
 public:
 	std::vector<Player> playerList;

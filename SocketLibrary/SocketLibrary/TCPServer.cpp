@@ -1,40 +1,21 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #include <TCPServer.hpp>
 
-//std::map<unsigned int, SOCKET> TCPServer::clients;
-//unsigned int TCPServer::clientsConnected = 0;
-//
-//DWORD WINAPI TCPServer::AcceptThread(SOCKET sockListen){
-//	SOCKET sock;
-//	char szBuff[DEFAULT_BUFFER];
-//	while(1){
-//		sockaddr_in _client;
-//		int iAddrSize = sizeof(_client);
-//		sock = accept( sockListen, (sockaddr *)&_client, &iAddrSize );
-//		if(sock == INVALID_SOCKET) {
-//			std::cout << "accept() failed.." << std::endl;
-//			return 0;
-//		}
-//
-//		clientsConnected++;
-//		clients.insert(std::pair<unsigned int, SOCKET>(clientsConnected, sock));
-//		std::cout << "client" << clientsConnected << " is now connected" << std::endl;
-//		int const MAX = 256;
-//		char buf[MAX];
-//		std::string clientId = std::to_string(clientsConnected);
-//		strcpy_s( buf, clientId.c_str() );
-//		int bytesSent = send( sock, buf, strlen( buf ) + 1, 0 );
-//		std::cout << "Server: Sent Id." << std::endl;
-//	}
-//	return 0;	
-//}
 
-   
+//name: shutdown 
+//purpose: This function properly closes the sockets and shuts down the WSA information 
 void TCPServer::shutdown() {
 		closesocket( hListen );
 		closesocket( hClient );
 		WSACleanup();
 	}
 
+
+//name:ListenAndAccept 
+//purpose: This function is not implemented but will listen and accept clients on a sperate thread 
 void TCPServer::ListenAndAccept() {
 		/*if( listen( hListen, 1 ) == SOCKET_ERROR ) {
 			std::cerr << "Failed to listen" << std::endl;
@@ -48,6 +29,9 @@ void TCPServer::ListenAndAccept() {
 		th.join();	*/		
 	}
 
+
+//name:Listen 
+//purpose: This function listens for clients to connect. 
 void TCPServer::Listen() {
 	if( listen( hListen, 1 ) == SOCKET_ERROR ) {
 		std::cerr << "Failed to listen" << std::endl;
@@ -55,6 +39,9 @@ void TCPServer::Listen() {
 	}
 }
 
+
+//name: Accept 
+//purpose: This function accepts a client 
 void TCPServer::Accept() {
 	
 	sockaddr_in _client;
@@ -65,6 +52,9 @@ void TCPServer::Accept() {
 	}
 }
 
+
+//name: init 
+//purpose: this function sets up the intitial WSA info and socket information 
 void TCPServer::init() {
 	iPort = DEFAULT_PORT; //port on server to connect to 
 	bSendOnly = FALSE;       //send data only dont receive 
@@ -90,6 +80,8 @@ void TCPServer::init() {
 }
 
 
+//name: Bind 
+//purpose: This function nicely binds the hListen socket to the server 
 void TCPServer::Bind() {
 	if( bind( hListen, (SOCKADDR*)&service, sizeof(service) ) == SOCKET_ERROR ) {
 		std::cerr << "Failed to bind" << std::endl;
@@ -100,7 +92,9 @@ void TCPServer::Bind() {
 }
 
 
-	std::string TCPServer::Recv() {
+//name: Recv
+//purpose This function receives data from the client 
+std::string TCPServer::Recv() {
 		int const MAX = 256;
 		char buf[DEFAULT_BUFFER];
 		int bytesRecv = recv( hClient, buf, MAX, 0 );
@@ -110,7 +104,10 @@ void TCPServer::Bind() {
 		return buf;
 	}
 
-	void TCPServer::Send(std::string msg) {
+
+//name: Send 
+//purpose: This function sends data to the client. 
+void TCPServer::Send(std::string msg) {
 		int const MAX = 256;
 		char buf[MAX];
 		std::map<unsigned int, SOCKET>::iterator map_it;
