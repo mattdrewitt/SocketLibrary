@@ -1,3 +1,7 @@
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
+
 #include <string>
 #include <map>
 #include <TCPServer.hpp>
@@ -18,6 +22,12 @@ mutex playerMutex;
 mutex setupMutex;
 condition_variable setupCond;
 
+//****Note: Attempted to add threads however they introduced an unexplainable memory leak
+//left evidence commented out so you could see our attempt. 
+
+
+//name:Reset 
+//purpose:this function resets the players and the dealers hands. 
 void Dealer::Reset(Player p){
 	//reset the players cards and the dealers cards. 
 	p.bets.clear();
@@ -26,6 +36,9 @@ void Dealer::Reset(Player p){
 	//run(); 
 }
 
+
+//name:SetupPlayer 
+//purpose: this function sets up a player in the dealer's player list. 
 Player Dealer::SetupPlayer() {
 	connection.Send("1");
 	
@@ -45,6 +58,9 @@ Player Dealer::SetupPlayer() {
 	return p;
 }
 
+
+//name: start
+//purpose: this function starts the connection to the TCP server
 void Dealer::start() {
 	connection = TCPServer("127.0.0.1", 80);
 	connection.Bind();
@@ -66,6 +82,9 @@ void Dealer::start() {
 	//}
 }
 
+
+//name: bets
+//purpose: thus function tells players when to bet if they have enough credits. 
 void Dealer::bets() {
 	//setupCond.notify_all();
 	cout << "Checking for new players..." << endl;
@@ -107,6 +126,10 @@ void Dealer::bets() {
 	}
 }
 
+
+//name: draw 
+//purpose: this function draws from the correct players when they are ready 
+			//and sends back a report message letting them know what cards they currently hold.
 void Dealer::draw() {
 	for( size_t i = 0; i < playerList.size(); i++ )
 	{
@@ -129,6 +152,9 @@ void Dealer::draw() {
 	connection.Send("Dealers Hand: " + dealerHand[0].to_string());
 }
 
+
+//name:round 
+//purpose: this function lets every player have 1 turn per round. 
 void Dealer::round() {
 	// Every Players turn
 	for( size_t i = 0; i < playerList.size(); i++ )

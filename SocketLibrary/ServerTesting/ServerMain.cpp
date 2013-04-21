@@ -1,5 +1,8 @@
-#include <TCPServer.hpp>
+//Developers: Kayla Boyer and Matt Drewitt
+//version: 1.0
+//Date: April 21st 2012 
 
+#include <TCPServer.hpp>
 #include "Dealer.hpp"
 using namespace std;
 #include <crtdbg.h>
@@ -7,6 +10,9 @@ Dealer dealer;
 mutex wakeMutex;
 condition_variable wakeCond;
 
+
+//note: attempted to add threads however they introduced an unexplainable memory leak. 
+	//left them in but commented out so you could see where we attempted to place them. 
 void game() {
 	//{ unique_lock<mutex> lk( wakeMutex );
 	//	wakeCond.wait( lk ); }
