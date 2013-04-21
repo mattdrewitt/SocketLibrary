@@ -74,10 +74,11 @@ void Dealer::bets() {
 			dealerHand.clear();
 			playerList.clear();
 			break;
-		case 'u':
-			playerList[i].ready = false;
-			break;
+		//case 'u':
+			//	playerList[i].ready = false;
+			//	break;
 		case 'b':
+			connection.Send(to_string(playerList[i].credit));
 			playerList[i].ready = true;
 			std::string bet = connection.Recv();
 			playerList[i].createBet(0, atoi(bet.c_str()));
@@ -267,7 +268,7 @@ void Dealer::round() {
 		dealerHand[0].cards.push_back(deck.Draw());
 		connection.Send("m");
 		connection.Send("Dealer hits.\nDealers Hand: " + dealerHand[0].to_string());
-		Sleep(2000); //Sleep for a couple seconds so we dont just spam
+		Sleep(1000); //Sleep for a couple seconds so we dont just spam
 	}
 
 	// Evaluate hands and see who won/lost/tied
@@ -276,12 +277,18 @@ void Dealer::round() {
 		{
 			for( size_t h = 0; h < playerList[i].hands.size(); h++ ) {
 				if( playerList[i].hands[h].value() > 21 || playerList[i].hands[h].value() < dealerHand[0].value() ) {
+					connection.Send("m");
+					connection.Send("You lose hand #" + std::to_string(h+1) + ": -" + to_string(playerList[i].bets[h]) + " credits.");
 					playerList[i].loseBet(h);
 				}
 				else {
 					if( playerList[i].hands[h].value() > dealerHand[0].value() )
+						connection.Send("m");
+						connection.Send("You win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
 						playerList[i].winBet(h);
 					else
+						connection.Send("m");
+						connection.Send("You tie hand #" + std::to_string(h+1) + ".");
 						playerList[i].tieBet(h);
 				}
 			}

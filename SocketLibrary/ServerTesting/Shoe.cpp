@@ -7,10 +7,19 @@
 void Shoe::init( int c ) {
 	std::string suits[4] = { "Clubs", "Diamonds", "Hearts", "Spades" };
 	std::vector<std::pair<std::string, int>> ranks;
-	ranks.push_back( std::pair<std::string, int>("Ace", 11) );
-	ranks.push_back( std::pair<std::string, int>("Eight", 8) );
-	ranks.push_back( std::pair<std::string, int>("Ace", 11) );
 	ranks.push_back( std::pair<std::string, int>("Two", 2) );
+	ranks.push_back( std::pair<std::string, int>("Three", 3) );
+	ranks.push_back( std::pair<std::string, int>("Four", 4) );
+	ranks.push_back( std::pair<std::string, int>("Five", 5) );
+	ranks.push_back( std::pair<std::string, int>("Six", 6) );
+	ranks.push_back( std::pair<std::string, int>("Seven", 7) );
+	ranks.push_back( std::pair<std::string, int>("Eight", 8) );
+	ranks.push_back( std::pair<std::string, int>("Nine", 9) );
+	ranks.push_back( std::pair<std::string, int>("Ten", 10) );
+	ranks.push_back( std::pair<std::string, int>("Jack", 10) );
+	ranks.push_back( std::pair<std::string, int>("Queen", 10) );
+	ranks.push_back( std::pair<std::string, int>("King", 10) );
+	ranks.push_back( std::pair<std::string, int>("Ace", 11) );
 	//{
 	//	{"Ace", 11}, {"King", 10}, {"Queen", 10}, {"Jack", 10}, 
 	//	{"Ten", 10}, {"Nine", 9}, {"Eight", 8}, {"Seven", 7},
