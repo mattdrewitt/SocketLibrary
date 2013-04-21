@@ -283,13 +283,17 @@ void Dealer::round() {
 				}
 				else {
 					if( playerList[i].hands[h].value() > dealerHand[0].value() )
+					{
 						connection.Send("m");
 						connection.Send("You win hand #" + std::to_string(h+1) + ": +" + to_string(playerList[i].bets[h]) + " credits.");
 						playerList[i].winBet(h);
+					}
 					else
+					{
 						connection.Send("m");
 						connection.Send("You tie hand #" + std::to_string(h+1) + ".");
 						playerList[i].tieBet(h);
+					}
 				}
 			}
 			// Clear the bets and hands
